@@ -285,7 +285,10 @@ export class Canvas {
       const isScreen = polys.length === 1 && s.doc.screens.some((x) => x.id === polys[0][0]);
       const locked = sel.some((id) => s.get(id)?.editor?.locked);
       if (!locked) {
+        const fb = aabb(frame);
+        const small = Math.min(fb.w, fb.h) * this.zoom < 36;
         for (const hd of this.handlePoints(frame)) {
+          if (small && hd.k.length === 1) continue; // Figma hides edge handles on small objects
           const [x, y] = this.toScreen(hd.p[0], hd.p[1]);
           out.push(`<rect x="${round(x - HANDLE / 2, 1)}" y="${round(y - HANDLE / 2, 1)}" width="${HANDLE}" height="${HANDLE}" fill="#fff" stroke="#0d99ff" stroke-width="1.2"/>`);
         }
@@ -666,7 +669,10 @@ export class Canvas {
       const tol = (HANDLE / 2 + 3) / this.zoom;
       const locked = sel.some((id) => s.get(id)?.editor?.locked);
       if (!locked) {
+        const fbb = aabb(frame);
+        const smallSel = Math.min(fbb.w, fbb.h) * this.zoom < 36;
         for (const hd of this.handlePoints(frame)) {
+          if (smallSel && hd.k.length === 1) continue;
           if (Math.abs(hd.p[0] - wx) <= tol && Math.abs(hd.p[1] - wy) <= tol) {
             if (e.altKey && e.shiftKey) break;
             return this.startResize(hd.k, wx, wy, e);
