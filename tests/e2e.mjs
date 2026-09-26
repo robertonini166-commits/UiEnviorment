@@ -177,6 +177,69 @@ await step('component create + sync', async () => {
   assert.ok(r.length >= 2 && r.every((c) => c === '#FF0000'), JSON.stringify(r));
 });
 
+await step('reparent by dragging into a frame', async () => {
+  const r = await app(() => {
+    const a = window.rbxui; const s = a.store;
+    const scr = a.cmd.addScreen('studio');
+    const big = a.cmd.insert('Frame', { parent: scr, props: { Position: [0, 100, 0, 100], Size: [0, 400, 0, 300], BackgroundColor3: '#333333' } });
+    const small = a.cmd.insert('Frame', { parent: scr, props: { Position: [0, 700, 0, 150], Size: [0, 80, 0, 80], BackgroundColor3: '#FF0000' } });
+    s.select(small.id);
+    return { big: big.id, small: small.id };
+  });
+  await page.waitForTimeout(300);
+  const pt = (id, fx, fy) => app(([id, fx, fy]) => { const a = window.rbxui; const p = a.canvas.polyOf(id); const rc = a.canvas.wrap.getBoundingClientRect(); const [x, y] = a.canvas.toScreen(p[0][0] + (p[1][0] - p[0][0]) * fx, p[0][1] + (p[3][1] - p[0][1]) * fy); return [x + rc.left, y + rc.top]; }, [id, fx, fy]);
+  const [sx, sy] = await pt(r.small, 0.5, 0.5);
+  const [tx, ty] = await pt(r.big, 0.5, 0.5);
+  await page.mouse.move(sx, sy); await page.mouse.down(); await page.mouse.move(tx, ty, { steps: 10 }); await page.mouse.up();
+  const parent = await app((id) => window.rbxui.store.parentOf(id).id, r.small);
+  assert.equal(parent, r.big);
+});
+
+await step('alt-drag duplicates', async () => {
+  const before = await app(() => window.rbxui.store.allNodes().length);
+  const id = await app(() => window.rbxui.store.selection[0]);
+  const [sx, sy] = await app((id) => { const a = window.rbxui; const p = a.canvas.polyOf(id); const rc = a.canvas.wrap.getBoundingClientRect(); const [x, y] = a.canvas.toScreen((p[0][0] + p[2][0]) / 2, (p[0][1] + p[2][1]) / 2); return [x + rc.left, y + rc.top]; }, id);
+  await page.keyboard.down('Alt');
+  await page.mouse.move(sx, sy); await page.mouse.down(); await page.mouse.move(sx + 60, sy + 10, { steps: 6 }); await page.mouse.up();
+  await page.keyboard.up('Alt');
+  const after = await app(() => window.rbxui.store.allNodes().length);
+  assert.ok(after > before, `${before} -> ${after}`);
+});
+
+await step('reorder inside UIListLayout by dragging', async () => {
+  const r = await app(() => {
+    const a = window.rbxui; const s = a.store; const scr = s.activeScreen;
+    const list = a.cmd.insert('Frame', { parent: scr, props: { Position: [0, 900, 0, 100], Size: [0, 200, 0, 400], BackgroundColor3: '#222222' } });
+    a.cmd.addModifier('UIListLayout', [list]);
+    const ids = ['A', 'B', 'C'].map((n, i) => a.cmd.insert('Frame', { parent: list, props: { Size: [1, 0, 0, 60], LayoutOrder: i }, name: n }).id);
+    s.select(ids[0]);
+    return ids;
+  });
+  await page.waitForTimeout(300);
+  const c = (id) => app((id) => { const a = window.rbxui; const p = a.canvas.polyOf(id); const rc = a.canvas.wrap.getBoundingClientRect(); const [x, y] = a.canvas.toScreen((p[0][0] + p[2][0]) / 2, (p[0][1] + p[2][1]) / 2); return [x + rc.left, y + rc.top]; }, id);
+  const [ax, ay] = await c(r[0]);
+  const [cx, cy] = await c(r[2]);
+  await page.mouse.move(ax, ay); await page.mouse.down(); await page.mouse.move(cx, cy + 12, { steps: 8 }); await page.mouse.up();
+  const order = await app((ids) => ids.map((id) => window.rbxui.store.get(id).props.LayoutOrder), r);
+  assert.ok(order[0] > order[1] && order[0] > order[2], JSON.stringify(order));
+});
+
+await step('paste RbxUI JSON from clipboard text', async () => {
+  const n = await app(() => { const a = window.rbxui; a.store.select([]); const before = a.store.activeScreen.children.length; a.cmd.paste(JSON.stringify({ ClassName: 'TextLabel', Name: 'FromClaude', props: { Text: 'Hola', TextSize: 30 } })); return a.store.activeScreen.children.length - before; });
+  assert.equal(n, 1);
+});
+
+await step('image import via assets API', async () => {
+  const ok = await app(async () => {
+    const a = window.rbxui;
+    const c = document.createElement('canvas'); c.width = 64; c.height = 32; const g = c.getContext('2d'); g.fillStyle = '#f00'; g.fillRect(0, 0, 64, 32);
+    const id = await a.assets.addDataUrl(c.toDataURL(), 'rojo');
+    const node = a.insertImage(id);
+    return node && node.props.Image === 'asset:' + id && a.store.doc.assets[id].width === 64;
+  });
+  assert.ok(ok);
+});
+
 await shot('final');
 console.log(errors.length ? '\nERRORS:\n' + errors.join('\n') : '\nALL GOOD');
 await browser.close();

@@ -411,11 +411,20 @@ export function colorField({ color, transparency, onChange, swatches, mixed }) {
 
 // ---------- dialogs & toasts ----------
 export function dialog(title, body, buttons = [{ label: 'Cerrar' }], opts = {}) {
-  const back = h('div', { class: 'dialog-back' });
+  const back = h('div', { class: 'dialog-back', tabindex: '-1' });
+  const onKey = (e) => {
+    if (e.key === 'Escape' && back.isConnected && back === [...document.querySelectorAll('.dialog-back')].pop()) {
+      e.stopPropagation();
+      e.preventDefault();
+      close();
+    }
+  };
   const close = () => {
+    window.removeEventListener('keydown', onKey, true);
     back.remove();
     opts.onClose?.();
   };
+  window.addEventListener('keydown', onKey, true);
   const foot = h('footer', {}, buttons.map((b) => {
     const bt = h('button', { class: 'btn ' + (b.primary ? 'primary' : '') }, b.label);
     bt.addEventListener('click', async () => {
@@ -431,11 +440,9 @@ export function dialog(title, body, buttons = [{ label: 'Cerrar' }], opts = {}) 
   back.addEventListener('pointerdown', (e) => {
     if (e.target === back) close();
   });
-  back.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') close();
-    e.stopPropagation();
-  });
+  back.addEventListener('keydown', (e) => e.stopPropagation());
   document.body.append(back);
+  if (!back.contains(document.activeElement)) back.focus({ preventScroll: true });
   back.close = close;
   return back;
 }

@@ -19,6 +19,7 @@ Leyenda: ✅ hecho · 🟡 adaptado o parcial · ❌ no hecho (ver "Cómo puedes
 | Layout grids (columnas) | 🟡 | `design.grid = {columns, gutter, margin}` en el JSON. Falta un panel para editarlo |
 | Vista de contornos (outline) | ❌ | Poco útil aquí; se puede añadir |
 | Barra superior de Roblox, zona segura, controles móviles | ✅ | **Extra de Roblox**: respeta `IgnoreGuiInset`/`ScreenInsets` (58 px) igual que Roblox |
+| Previsualizar en otros dispositivos | ✅ | En ▶ Probar: móvil, tablet, PC… con **escalado automático** (UIScale en el LocalScript exportado) |
 
 ## Selección y edición
 
@@ -127,7 +128,7 @@ Leyenda: ✅ hecho · 🟡 adaptado o parcial · ❌ no hecho (ver "Cómo puedes
 | App instalable / sin conexión | ✅ | PWA (service worker) |
 | Importar `.fig` o SVG | ❌ | Formato cerrado de Figma |
 | Multijugador en tiempo real, comentarios, compartir con permisos, ramas | ❌ | Necesitan servidor y cuentas |
-| Plugins o widgets | ❌ | La CLI (`cli/rbxui.mjs`) y el JSON cubren la automatización (Claude) |
+| Plugins o widgets | 🟡 | No hay API de plugins. En su lugar: CLI (`cli/rbxui.mjs`) y **servidor MCP** (`cli/mcp.mjs`) para que Claude use el editor |
 | Figma AI | ✅ | Claude diseña escribiendo el JSON y revisa el render con la CLI (ver CLAUDE.md) |
 
 ---
