@@ -8,7 +8,8 @@ export const PALETTE = {
 };
 
 const F = (weight = 'Heavy', family = 'Montserrat') => ({ family, weight, style: 'Normal' });
-const stroke = (t = 3, mode = 'Border', color = '#000000', extra = {}) => ({ ClassName: 'UIStroke', props: { Thickness: t, Color: color, ApplyStrokeMode: mode, LineJoinMode: 'Miter', ...extra } });
+// Border strokes use Miter (square corners, Stud Style); text outlines use Round (no spikes on sharp glyphs).
+const stroke = (t = 3, mode = 'Border', color = '#000000', extra = {}) => ({ ClassName: 'UIStroke', props: { Thickness: t, Color: color, ApplyStrokeMode: mode, LineJoinMode: mode === 'Contextual' ? 'Round' : 'Miter', ...extra } });
 const grad = ([a, b], rot = 90) => ({ ClassName: 'UIGradient', props: { Color: [[0, a], [1, b]], Rotation: rot } });
 const corner = (r) => ({ ClassName: 'UICorner', props: { CornerRadius: Array.isArray(r) ? r : [0, r] } });
 
@@ -222,12 +223,28 @@ export function makeStudTexture(size = 128) {
   return c.toDataURL('image/png');
 }
 
-/** Ensures template-required assets exist in the document; returns map of placeholders -> asset ids. */
+/** Built-in kit images (our own art), available to every document as `asset:<key>`. */
+export const KIT_ASSETS = { studs: { name: 'Studs', file: 'app/img/kit/studs.png', width: 128, height: 128 } };
+
+/** Ensures kit assets used by templates exist in the document (as data URLs so they travel with it). */
 export async function ensureKitAssets(app) {
   const doc = app.store.doc;
-  let id = Object.keys(doc.assets).find((k) => doc.assets[k].kit === 'studs');
-  if (!id) id = await app.assets.addDataUrl(makeStudTexture(128), 'Studs', { kit: 'studs', v: 2 });
-  return { studs: id };
+  const map = {};
+  for (const [key, k] of Object.entries(KIT_ASSETS)) {
+    if (!doc.assets[key]) {
+      const url = new URL('../../' + k.file.replace(/^app\//, ''), import.meta.url).href;
+      const blob = await (await fetch(url)).blob();
+      const data = await new Promise((res) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result);
+        r.readAsDataURL(blob);
+      });
+      doc.assets[key] = { name: k.name, url: data, width: k.width, height: k.height, rbxId: '', kit: key };
+      app.store.emit({ doc: true, assets: true });
+    }
+    map[key] = key;
+  }
+  return map;
 }
 
 /** Replaces "asset:studs" placeholders with real asset ids. */

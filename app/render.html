@@ -1,6 +1,6 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><link rel="stylesheet" href="css/rbx.css">
-<style>body{margin:0;background:#222} #host>.rbx-screen{background:#3A6EA5}</style></head>
+<style>body{margin:0;background:#222} </style></head>
 <body><div id="host"></div>
 <script type="module">
 import { normalizeDocument } from './js/core/model.js';
@@ -12,6 +12,8 @@ const screen = doc.screens[+(q.get('screen') || 0)];
 const host = document.getElementById('host');
 host.firstChild?.remove();
 const r = new ScreenRenderer(host, { doc, mode: 'preview', onFontsLoaded: () => { window.__ready = true; } });
+r.root.style.background = screen.design?.background || '#3A6EA5';
+if (screen.design?.backgroundImage) { r.root.style.backgroundImage = `url(${screen.design.backgroundImage})`; r.root.style.backgroundSize = 'cover'; }
 r.render(screen);
 window.__warnings = warnings;
 setTimeout(() => { window.__ready = true; }, 4000);

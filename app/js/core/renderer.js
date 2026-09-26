@@ -8,14 +8,19 @@ import { isGuiObject, isText } from './schema.js';
 import { ensureFontsFor } from './fonts.js';
 
 let fontsVersion = 0;
+// kit images bundled with the app (used when a document references them without embedding)
+const BUILTIN = { studs: { url: new URL('../../img/kit/studs.png', import.meta.url).href, width: 128, height: 128, name: 'Studs' } };
 
 export function assetResolver(doc) {
   return (contentId) => {
     if (!contentId) return null;
     const s = String(contentId);
     if (s.startsWith('asset:')) {
-      const a = doc.assets?.[s.slice(6)];
-      return a ? { url: a.url || a.data, width: a.width, height: a.height, name: a.name } : null;
+      const key = s.slice(6);
+      const a = doc.assets?.[key];
+      if (a) return { url: a.url || a.data, width: a.width, height: a.height, name: a.name };
+      if (BUILTIN[key]) return BUILTIN[key];
+      return null;
     }
     const m = s.match(/(\d{3,})/);
     if (m) {

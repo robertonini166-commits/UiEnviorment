@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // RbxUI command line — lets people and AI agents (Claude) use the editor engine headlessly.
 //
-//   node cli/rbxui.mjs render   <doc.json> [--screen N|Name] [--out file.png] [--scale 2]
+//   node cli/rbxui.mjs render   <doc.json> [--screen N|Name] [--out file.png] [--scale 2] [--node Name]
 //   node cli/rbxui.mjs export   <doc.json> [--format rbxmx|luau|module] [--out file] [--no-runtime]
 //   node cli/rbxui.mjs validate <doc.json>          # schema warnings + design lint (+ rbx-dom check if built)
 //   node cli/rbxui.mjs import   <file.rbxmx> [--out doc.json]
@@ -62,7 +62,27 @@ async function render() {
     await page.waitForFunction(() => window.__ready, null, { timeout: 20000 });
     await page.waitForTimeout(250);
     const out = opt('out', null) && screens.length === 1 ? opt('out') : path.join(root, 'out', `${base(file)}-${s.Name}.png`);
-    await page.locator('.rbx-screen').screenshot({ path: out });
+    const nodeName = opt('node', null);
+    if (nodeName) {
+      // close-up of one element (first node with that Name), with a margin for strokes/shadows
+      const id = (() => {
+        let found = null;
+        const visit = (n) => {
+          if (!found && n.Name === nodeName) found = n.id;
+          n.children.forEach(visit);
+        };
+        visit(s);
+        return found;
+      })();
+      if (!id) die('No existe un nodo llamado ' + nodeName);
+      const rect = await page.evaluate((id) => {
+        const el = document.querySelector(`.rbx-node[data-id="${id}"]`);
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, width: r.width, height: r.height };
+      }, id);
+      const m = 12;
+      await page.screenshot({ path: out, clip: { x: Math.max(0, rect.x - m), y: Math.max(0, rect.y - m), width: rect.width + 2 * m, height: rect.height + 2 * m } });
+    } else await page.locator('.rbx-screen').screenshot({ path: out });
     outs.push(out);
     await page.close();
   }

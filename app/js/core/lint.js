@@ -31,12 +31,15 @@ export function lintDocument(doc, { screens } = {}) {
         if ((P.Color?.length || 0) > 20 || (P.Transparency?.length || 0) > 20) add('error', n, `${parent?.Name}: UIGradient con más de 20 puntos (límite de Roblox).`);
         if (parent && (parent.ClassName === 'ScrollingFrame' || parent.ClassName === 'TextBox')) add('warn', n, `${parent.Name}: Roblox no aplica UIGradient a ${parent.ClassName}.`);
       }
+      if (n.ClassName === 'UIGradient' && parent && isGuiObject(parent.ClassName) && !isText(parent.ClassName) && (parent.props.BackgroundTransparency ?? 0) >= 1 && !parent.props.Image) {
+        add('warn', parent, `${parent.Name}: tiene UIGradient pero BackgroundTransparency = 1, así que el degradado no se ve (pon BackgroundTransparency 0).`);
+      }
       if (n.ClassName === 'UICorner' && parent?.ClassName === 'ScrollingFrame') add('warn', n, `${parent.Name}: UICorner no funciona en ScrollingFrame (usa un Frame padre con ClipsDescendants).`);
       for (const k of ['Image', 'HoverImage', 'PressedImage']) {
         const v = P[k];
         if (v && String(v).startsWith('asset:')) {
           const a = doc.assets?.[String(v).slice(6)];
-          if (!a) add('error', n, `${n.Name}.${k}: imagen local que ya no existe.`);
+          if (!a && String(v).slice(6) !== 'studs') add('error', n, `${n.Name}.${k}: imagen local que ya no existe.`);
         }
       }
       if (isGuiObject(n.ClassName) && parent?.ClassName === 'ScreenGui' && P.Size) {

@@ -1,0 +1,4728 @@
+{
+ "format": "rbxui",
+ "version": 1,
+ "name": "Inventario",
+ "screens": [
+  {
+   "ClassName": "ScreenGui",
+   "Name": "InventoryUI",
+   "props": {
+    "ResetOnSpawn": false,
+    "ZIndexBehavior": "Sibling"
+   },
+   "design": {
+    "device": "studio",
+    "width": 1280,
+    "height": 720,
+    "background": "#4A7A3A"
+   },
+   "children": [
+    {
+     "ClassName": "Frame",
+     "Name": "InventoryWindow",
+     "props": {
+      "AnchorPoint": [
+       0.5,
+       0.5
+      ],
+      "Position": [
+       0.5,
+       0,
+       0.5,
+       0
+      ],
+      "Size": [
+       0,
+       720,
+       0,
+       440
+      ],
+      "BackgroundColor3": "#FFFFFF"
+     },
+     "children": [
+      {
+       "ClassName": "UIGradient",
+       "props": {
+        "Color": [
+         [
+          0,
+          "#31333B"
+         ],
+         [
+          1,
+          "#292B32"
+         ]
+        ],
+        "Rotation": 90
+       }
+      },
+      {
+       "ClassName": "UIStroke",
+       "props": {
+        "Thickness": 4,
+        "Color": "#000000",
+        "ApplyStrokeMode": "Border",
+        "LineJoinMode": "Miter"
+       }
+      },
+      {
+       "ClassName": "ImageLabel",
+       "Name": "Studs",
+       "props": {
+        "Size": [
+         1,
+         0,
+         1,
+         0
+        ],
+        "BackgroundTransparency": 1,
+        "Image": "asset:studs",
+        "ScaleType": "Tile",
+        "TileSize": [
+         0,
+         37,
+         0,
+         37
+        ],
+        "ImageTransparency": 0.85,
+        "ZIndex": 1
+       }
+      },
+      {
+       "ClassName": "UIShadow",
+       "props": {
+        "Color": "#000000",
+        "Transparency": 0.45,
+        "BlurRadius": [
+         0,
+         0
+        ],
+        "Offset": [
+         0,
+         0,
+         0,
+         8
+        ],
+        "ZIndex": -1
+       }
+      },
+      {
+       "ClassName": "Frame",
+       "Name": "Header",
+       "props": {
+        "Size": [
+         1,
+         0,
+         0,
+         50
+        ],
+        "BackgroundColor3": "#FFFFFF",
+        "ZIndex": 3
+       },
+       "children": [
+        {
+         "ClassName": "UIGradient",
+         "props": {
+          "Color": [
+           [
+            0,
+            "#6FD0FF"
+           ],
+           [
+            1,
+            "#2C86D6"
+           ]
+          ],
+          "Rotation": 90
+         }
+        },
+        {
+         "ClassName": "UIStroke",
+         "props": {
+          "Thickness": 3,
+          "Color": "#000000",
+          "ApplyStrokeMode": "Border",
+          "LineJoinMode": "Miter"
+         }
+        },
+        {
+         "ClassName": "Frame",
+         "Name": "Gloss",
+         "props": {
+          "Size": [
+           1,
+           0,
+           0.48,
+           0
+          ],
+          "BackgroundColor3": "#FFFFFF",
+          "BackgroundTransparency": 0.8,
+          "ZIndex": 4
+         }
+        },
+        {
+         "ClassName": "Frame",
+         "Name": "Shine",
+         "props": {
+          "Size": [
+           1,
+           0,
+           0,
+           2
+          ],
+          "BackgroundColor3": "#FFFFFF",
+          "BackgroundTransparency": 0.35,
+          "ZIndex": 4
+         }
+        },
+        {
+         "ClassName": "Frame",
+         "Name": "Bevel",
+         "props": {
+          "AnchorPoint": [
+           0,
+           1
+          ],
+          "Position": [
+           0,
+           0,
+           1,
+           0
+          ],
+          "Size": [
+           1,
+           0,
+           0,
+           4
+          ],
+          "BackgroundColor3": "#000000",
+          "BackgroundTransparency": 0.72,
+          "ZIndex": 4
+         }
+        },
+        {
+         "ClassName": "ImageLabel",
+         "Name": "Studs",
+         "props": {
+          "Size": [
+           1,
+           0,
+           1,
+           0
+          ],
+          "BackgroundTransparency": 1,
+          "Image": "asset:studs",
+          "ScaleType": "Tile",
+          "TileSize": [
+           0,
+           56,
+           0,
+           56
+          ],
+          "ImageTransparency": 0.55,
+          "ZIndex": 4
+         }
+        },
+        {
+         "ClassName": "Frame",
+         "Name": "IconSlot",
+         "props": {
+          "Position": [
+           0,
+           10,
+           0.5,
+           0
+          ],
+          "AnchorPoint": [
+           0,
+           0.5
+          ],
+          "Size": [
+           0,
+           40,
+           0,
+           40
+          ],
+          "BackgroundTransparency": 1,
+          "ZIndex": 5
+         }
+        },
+        {
+         "ClassName": "TextLabel",
+         "Name": "Title",
+         "props": {
+          "Text": "INVENTARIO",
+          "TextSize": 26,
+          "FontFace": {
+           "family": "Montserrat",
+           "weight": "Heavy",
+           "style": "Normal"
+          },
+          "TextColor3": "#FFFFFF",
+          "BackgroundTransparency": 1,
+          "Size": [
+           1,
+           -120,
+           1,
+           0
+          ],
+          "ZIndex": 5,
+          "Position": [
+           0,
+           58,
+           0,
+           0
+          ],
+          "TextXAlignment": "Left"
+         },
+         "children": [
+          {
+           "ClassName": "UIStroke",
+           "props": {
+            "Thickness": 3,
+            "Color": "#000000",
+            "ApplyStrokeMode": "Contextual",
+            "LineJoinMode": "Round"
+           }
+          }
+         ]
+        },
+        {
+         "ClassName": "TextButton",
+         "Name": "CloseButton",
+         "props": {
+          "AnchorPoint": [
+           1,
+           0.5
+          ],
+          "Position": [
+           1,
+           -8,
+           0.5,
+           0
+          ],
+          "Size": [
+           0,
+           38,
+           0,
+           38
+          ],
+          "BackgroundColor3": "#FFFFFF",
+          "Text": "",
+          "AutoButtonColor": false,
+          "ZIndex": 6
+         },
+         "children": [
+          {
+           "ClassName": "UIGradient",
+           "props": {
+            "Color": [
+             [
+              0,
+              "#FF5B5B"
+             ],
+             [
+              1,
+              "#C81E1E"
+             ]
+            ],
+            "Rotation": 90
+           }
+          },
+          {
+           "ClassName": "UIStroke",
+           "props": {
+            "Thickness": 3,
+            "Color": "#000000",
+            "ApplyStrokeMode": "Border",
+            "LineJoinMode": "Miter"
+           }
+          },
+          {
+           "ClassName": "Frame",
+           "Name": "Gloss",
+           "props": {
+            "Size": [
+             1,
+             0,
+             0.48,
+             0
+            ],
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0.8,
+            "ZIndex": 7
+           }
+          },
+          {
+           "ClassName": "Frame",
+           "Name": "Shine",
+           "props": {
+            "Size": [
+             1,
+             0,
+             0,
+             2
+            ],
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0.35,
+            "ZIndex": 7
+           }
+          },
+          {
+           "ClassName": "Frame",
+           "Name": "Bevel",
+           "props": {
+            "AnchorPoint": [
+             0,
+             1
+            ],
+            "Position": [
+             0,
+             0,
+             1,
+             0
+            ],
+            "Size": [
+             1,
+             0,
+             0,
+             4
+            ],
+            "BackgroundColor3": "#000000",
+            "BackgroundTransparency": 0.72,
+            "ZIndex": 7
+           }
+          },
+          {
+           "ClassName": "TextLabel",
+           "Name": "X",
+           "props": {
+            "Text": "X",
+            "TextSize": 24,
+            "FontFace": {
+             "family": "Montserrat",
+             "weight": "Heavy",
+             "style": "Normal"
+            },
+            "TextColor3": "#FFFFFF",
+            "BackgroundTransparency": 1,
+            "Size": [
+             1,
+             0,
+             1,
+             0
+            ],
+            "ZIndex": 8
+           },
+           "children": [
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Contextual",
+              "LineJoinMode": "Round"
+             }
+            }
+           ]
+          }
+         ],
+         "interactions": [
+          {
+           "trigger": "click",
+           "action": "closeParent",
+           "animation": "pop"
+          }
+         ],
+         "buttonFx": {
+          "hover": 1.08,
+          "press": 0.9
+         }
+        }
+       ]
+      },
+      {
+       "ClassName": "Frame",
+       "Name": "Body",
+       "props": {
+        "Position": [
+         0,
+         0,
+         0,
+         50
+        ],
+        "Size": [
+         1,
+         0,
+         1,
+         -50
+        ],
+        "BackgroundTransparency": 1,
+        "ZIndex": 2
+       },
+       "children": [
+        {
+         "ClassName": "UIPadding",
+         "props": {
+          "PaddingTop": [
+           0,
+           14
+          ],
+          "PaddingBottom": [
+           0,
+           14
+          ],
+          "PaddingLeft": [
+           0,
+           14
+          ],
+          "PaddingRight": [
+           0,
+           14
+          ]
+         }
+        },
+        {
+         "ClassName": "ScrollingFrame",
+         "Name": "Grid",
+         "props": {
+          "Size": [
+           1,
+           -200,
+           1,
+           0
+          ],
+          "BackgroundTransparency": 1,
+          "VerticalScrollBarInset": "ScrollBar",
+          "CanvasSize": [
+           0,
+           0,
+           0,
+           0
+          ],
+          "AutomaticCanvasSize": "Y",
+          "ScrollBarThickness": 6,
+          "ScrollBarImageColor3": "#FFFFFF",
+          "ScrollBarImageTransparency": 0.3
+         },
+         "children": [
+          {
+           "ClassName": "UIGridLayout",
+           "props": {
+            "CellSize": [
+             0,
+             110,
+             0,
+             110
+            ],
+            "CellPadding": [
+             0,
+             10,
+             0,
+             10
+            ],
+            "SortOrder": "LayoutOrder",
+            "HorizontalAlignment": "Center"
+           }
+          },
+          {
+           "ClassName": "UIPadding",
+           "props": {
+            "PaddingTop": [
+             0,
+             4
+            ],
+            "PaddingLeft": [
+             0,
+             4
+            ]
+           }
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot1",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 0
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#C9CED6"
+               ],
+               [
+                1,
+                "#8C939E"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 1",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "COMÚN",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot2",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 1
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#8CF25E"
+               ],
+               [
+                1,
+                "#3FB52C"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 8",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "POCO COMÚN",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot3",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 2
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#6FD0FF"
+               ],
+               [
+                1,
+                "#2C86D6"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 15",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "RARO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Equipped",
+             "props": {
+              "AnchorPoint": [
+               1,
+               0
+              ],
+              "Position": [
+               1,
+               -4,
+               0,
+               4
+              ],
+              "Size": [
+               0,
+               22,
+               0,
+               22
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "ZIndex": 6
+             },
+             "children": [
+              {
+               "ClassName": "UIGradient",
+               "props": {
+                "Color": [
+                 [
+                  0,
+                  "#B8FF5E"
+                 ],
+                 [
+                  1,
+                  "#43C22C"
+                 ]
+                ],
+                "Rotation": 90
+               }
+              },
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Border",
+                "LineJoinMode": "Miter"
+               }
+              },
+              {
+               "ClassName": "TextLabel",
+               "Name": "Check",
+               "props": {
+                "Text": "✓",
+                "TextSize": 16,
+                "FontFace": {
+                 "family": "Montserrat",
+                 "weight": "Heavy",
+                 "style": "Normal"
+                },
+                "TextColor3": "#FFFFFF",
+                "BackgroundTransparency": 1,
+                "Size": [
+                 1,
+                 0,
+                 1,
+                 0
+                ],
+                "ZIndex": 7
+               },
+               "children": [
+                {
+                 "ClassName": "UIStroke",
+                 "props": {
+                  "Thickness": 2,
+                  "Color": "#000000",
+                  "ApplyStrokeMode": "Contextual",
+                  "LineJoinMode": "Round"
+                 }
+                }
+               ]
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot4",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 3
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#D08CFF"
+               ],
+               [
+                1,
+                "#8B3FD6"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 22",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "ÉPICO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot5",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 4
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#FFD65E"
+               ],
+               [
+                1,
+                "#FF8A00"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 29",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "LEGENDARIO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot6",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 5
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#FF7AA8"
+               ],
+               [
+                1,
+                "#E0245E"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 6",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "MÍTICO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot7",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 6
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#C9CED6"
+               ],
+               [
+                1,
+                "#8C939E"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 13",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "COMÚN",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot8",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 7
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#8CF25E"
+               ],
+               [
+                1,
+                "#3FB52C"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 20",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "POCO COMÚN",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot9",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 8
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#6FD0FF"
+               ],
+               [
+                1,
+                "#2C86D6"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 27",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "RARO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot10",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 9
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#D08CFF"
+               ],
+               [
+                1,
+                "#8B3FD6"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 4",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "ÉPICO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot11",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 10
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#FFD65E"
+               ],
+               [
+                1,
+                "#FF8A00"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 11",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "LEGENDARIO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot12",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 11
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#FF7AA8"
+               ],
+               [
+                1,
+                "#E0245E"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 18",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "MÍTICO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot13",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 12
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#C9CED6"
+               ],
+               [
+                1,
+                "#8C939E"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 25",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "COMÚN",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot14",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 13
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#8CF25E"
+               ],
+               [
+                1,
+                "#3FB52C"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 2",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "POCO COMÚN",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "ImageButton",
+           "Name": "Slot15",
+           "props": {
+            "BackgroundColor3": "#FFFFFF",
+            "BackgroundTransparency": 0,
+            "Image": "",
+            "AutoButtonColor": false,
+            "LayoutOrder": 14
+           },
+           "buttonFx": {
+            "hover": 1.06,
+            "press": 0.92
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#6FD0FF"
+               ],
+               [
+                1,
+                "#2C86D6"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.6,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Icon",
+             "props": {
+              "AnchorPoint": [
+               0.5,
+               0.5
+              ],
+              "Position": [
+               0.5,
+               0,
+               0.45,
+               0
+              ],
+              "Size": [
+               0.78,
+               0,
+               0.78,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "ScaleType": "Fit",
+              "ZIndex": 4
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Level",
+             "props": {
+              "Text": "Nv 9",
+              "TextSize": 16,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               0,
+               60,
+               0,
+               16
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0,
+               0
+              ],
+              "Position": [
+               0,
+               5,
+               0,
+               3
+              ],
+              "TextXAlignment": "Left"
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Rarity",
+             "props": {
+              "Text": "RARO",
+              "TextSize": 12,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               -6,
+               0,
+               14
+              ],
+              "ZIndex": 5,
+              "AnchorPoint": [
+               0.5,
+               1
+              ],
+              "Position": [
+               0.5,
+               0,
+               1,
+               -3
+              ]
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "ClassName": "Frame",
+         "Name": "Side",
+         "props": {
+          "AnchorPoint": [
+           1,
+           0
+          ],
+          "Position": [
+           1,
+           0,
+           0,
+           0
+          ],
+          "Size": [
+           0,
+           186,
+           1,
+           0
+          ],
+          "BackgroundTransparency": 1
+         },
+         "children": [
+          {
+           "ClassName": "UIListLayout",
+           "props": {
+            "Padding": [
+             0,
+             10
+            ],
+            "HorizontalAlignment": "Center",
+            "SortOrder": "LayoutOrder"
+           }
+          },
+          {
+           "ClassName": "Frame",
+           "Name": "Counter",
+           "props": {
+            "Size": [
+             1,
+             0,
+             0,
+             44
+            ],
+            "BackgroundColor3": "#FFFFFF",
+            "LayoutOrder": 1
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#23252B"
+               ],
+               [
+                1,
+                "#1B1C21"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Value",
+             "props": {
+              "Text": "24 / 50",
+              "TextSize": 24,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "ZIndex": 5
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 3,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ]
+          },
+          {
+           "ClassName": "TextButton",
+           "Name": "EquipBest",
+           "props": {
+            "Size": [
+             0,
+             186,
+             0,
+             52
+            ],
+            "BackgroundColor3": "#FFFFFF",
+            "Text": "",
+            "AutoButtonColor": false,
+            "AnchorPoint": [
+             0,
+             0
+            ],
+            "Position": [
+             0,
+             0,
+             0,
+             0
+            ],
+            "LayoutOrder": 2
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#B8FF5E"
+               ],
+               [
+                1,
+                "#43C22C"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.55,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Label",
+             "props": {
+              "Text": "EQUIPAR MEJOR",
+              "TextSize": 22,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "ZIndex": 5
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ],
+           "buttonFx": {
+            "hover": 1.05,
+            "press": 0.92
+           }
+          },
+          {
+           "ClassName": "TextButton",
+           "Name": "AutoSell",
+           "props": {
+            "Size": [
+             0,
+             186,
+             0,
+             52
+            ],
+            "BackgroundColor3": "#FFFFFF",
+            "Text": "",
+            "AutoButtonColor": false,
+            "AnchorPoint": [
+             0,
+             0
+            ],
+            "Position": [
+             0,
+             0,
+             0,
+             0
+            ],
+            "LayoutOrder": 3
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#FF8AD0"
+               ],
+               [
+                1,
+                "#E0479E"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.55,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Label",
+             "props": {
+              "Text": "VENTA AUTO",
+              "TextSize": 22,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "ZIndex": 5
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ],
+           "buttonFx": {
+            "hover": 1.05,
+            "press": 0.92
+           }
+          },
+          {
+           "ClassName": "TextButton",
+           "Name": "Trade",
+           "props": {
+            "Size": [
+             0,
+             186,
+             0,
+             52
+            ],
+            "BackgroundColor3": "#FFFFFF",
+            "Text": "",
+            "AutoButtonColor": false,
+            "AnchorPoint": [
+             0,
+             0
+            ],
+            "Position": [
+             0,
+             0,
+             0,
+             0
+            ],
+            "LayoutOrder": 4
+           },
+           "children": [
+            {
+             "ClassName": "UIGradient",
+             "props": {
+              "Color": [
+               [
+                0,
+                "#FFC04D"
+               ],
+               [
+                1,
+                "#FF7A00"
+               ]
+              ],
+              "Rotation": 90
+             }
+            },
+            {
+             "ClassName": "UIStroke",
+             "props": {
+              "Thickness": 3,
+              "Color": "#000000",
+              "ApplyStrokeMode": "Border",
+              "LineJoinMode": "Miter"
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Gloss",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0.48,
+               0
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.8,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Shine",
+             "props": {
+              "Size": [
+               1,
+               0,
+               0,
+               2
+              ],
+              "BackgroundColor3": "#FFFFFF",
+              "BackgroundTransparency": 0.35,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "Frame",
+             "Name": "Bevel",
+             "props": {
+              "AnchorPoint": [
+               0,
+               1
+              ],
+              "Position": [
+               0,
+               0,
+               1,
+               0
+              ],
+              "Size": [
+               1,
+               0,
+               0,
+               4
+              ],
+              "BackgroundColor3": "#000000",
+              "BackgroundTransparency": 0.72,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "ImageLabel",
+             "Name": "Studs",
+             "props": {
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "BackgroundTransparency": 1,
+              "Image": "asset:studs",
+              "ScaleType": "Tile",
+              "TileSize": [
+               0,
+               37,
+               0,
+               37
+              ],
+              "ImageTransparency": 0.55,
+              "ZIndex": 2
+             }
+            },
+            {
+             "ClassName": "TextLabel",
+             "Name": "Label",
+             "props": {
+              "Text": "INTERCAMBIAR",
+              "TextSize": 22,
+              "FontFace": {
+               "family": "Montserrat",
+               "weight": "Heavy",
+               "style": "Normal"
+              },
+              "TextColor3": "#FFFFFF",
+              "BackgroundTransparency": 1,
+              "Size": [
+               1,
+               0,
+               1,
+               0
+              ],
+              "ZIndex": 5
+             },
+             "children": [
+              {
+               "ClassName": "UIStroke",
+               "props": {
+                "Thickness": 2,
+                "Color": "#000000",
+                "ApplyStrokeMode": "Contextual",
+                "LineJoinMode": "Round"
+               }
+              }
+             ]
+            }
+           ],
+           "buttonFx": {
+            "hover": 1.05,
+            "press": 0.92
+           }
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
