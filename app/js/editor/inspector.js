@@ -150,6 +150,8 @@ export class Inspector {
         return h('div', { style: { display: 'flex', gap: '6px' } }, b, x);
       })(),
     );
+    body.append(h('div', { style: { marginTop: '8px' } }, checkbox('Escalado automático en otras pantallas', !!d.autoScale, (v) => s.edit('Escalado automático', () => (scr.design.autoScale = v)), 'El LocalScript exportado añade un UIScale a cada objeto de primer nivel para que el diseño (hecho a este tamaño) quepa en móviles y pantallas grandes.')),
+      h('div', { class: 'hint' }, d.autoScale ? `Se escalará respecto a ${d.width}×${d.height} (UIScale en tiempo real).` : 'Recomendado si usas tamaños en px (Offset).'));
     wrap.append(this.section('screen', 'Pantalla (ScreenGui)', body, { collapsible: false }));
     // layout grid (columns) — editor-only helper like Figma's layout grids
     const g = d.grid || { columns: 0, gutter: 16, margin: 24 };

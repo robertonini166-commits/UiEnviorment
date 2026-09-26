@@ -16,7 +16,10 @@ node cli/rbxui.mjs validate doc.json          # esquema + revisión de diseño +
 node cli/rbxui.mjs export doc.json --format rbxmx|luau|module
 node cli/rbxui.mjs import ui.rbxmx --out doc.json
 node cli/rbxui.mjs fonts                      # las 40 familias oficiales de Roblox
+node tests/mcp.test.mjs                       # prueba el servidor MCP (cli/mcp.mjs)
 ```
+
+Servidor MCP para usuarios de Claude: `cli/mcp.mjs` (ver `docs/MCP.md`).
 
 Validación fuerte (opcional, ya usada en CI local): `tools/rbxcheck` (Rust, rbx-dom = el parser de Rojo)
 comprueba que el `.rbxmx` es válido para Roblox; `lune run tests/luau-check.luau x.luau x.rbxmx` ejecuta el
@@ -25,7 +28,9 @@ Luau exportado en una emulación de Roblox y verifica que crea exactamente las m
 ## Cómo diseñar una UI (flujo para Claude)
 
 1. Escribe el diseño como JSON (`docs/FORMAT.md`) o con los constructores del kit
-   (`app/js/editor/templates.js`: `studWindow`, `studButton`, `itemCard`, `hudButton`, `currency`…).
+   (`app/js/editor/templates.js`: `studWindow`, `studButton`, `itemCard`, `hudButton`, `currency`…) y las
+   pantallas completas de `app/js/editor/screen-templates.js` (inventario, diaria, rebirth, premium, ajustes).
+   Pon `design.autoScale: true` si usas tamaños en px: el LocalScript escala la UI en móviles.
 2. `node cli/rbxui.mjs render diseño.json --out out/diseño.png` y **mira el PNG** (herramienta Read).
    Compara con las referencias; itera hasta que se vea bien.
 3. `node cli/rbxui.mjs validate diseño.json` → sin errores.

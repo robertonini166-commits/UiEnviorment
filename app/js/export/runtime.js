@@ -6,6 +6,7 @@ import { luaString } from './luau.js';
 import { walk } from '../core/model.js';
 
 export function hasInteractions(screen) {
+  if (screen.design?.autoScale) return true;
   let any = false;
   walk(screen, (n) => {
     if (n.interactions?.length || n.buttonFx) any = true;
@@ -52,6 +53,8 @@ local Lighting = game:GetService("Lighting")
 local UserInputService = game:GetService("UserInputService")
 local gui = script.Parent
 
+local AUTO_SCALE = ${screen.design?.autoScale ? `{ width = ${screen.design.width}, height = ${screen.design.height} }` : 'nil'}
+
 local BUTTON_FX = {
 ${fx.join('\n')}
 }
@@ -81,6 +84,32 @@ local function scaleOf(obj: Instance): UIScale
 		s.Parent = obj
 	end
 	return s :: UIScale
+end
+
+-- base scale (auto-scaling multiplies every animation)
+local function baseOf(s: UIScale): number
+	return (s:GetAttribute("RbxUIBase") :: number?) or 1
+end
+
+-- Auto-scale: the UI was designed at AUTO_SCALE.width x height; scale top-level objects to the real screen
+if AUTO_SCALE then
+	local camera = workspace.CurrentCamera
+	local function apply()
+		local vp = gui.AbsoluteSize
+		if vp.X <= 0 or vp.Y <= 0 then vp = camera.ViewportSize end
+		local k = math.min(vp.X / AUTO_SCALE.width, vp.Y / AUTO_SCALE.height)
+		for _, child in gui:GetChildren() do
+			if child:IsA("GuiObject") then
+				local s = scaleOf(child)
+				local old = baseOf(s)
+				s:SetAttribute("RbxUIBase", k)
+				s.Scale = s.Scale / old * k
+			end
+		end
+	end
+	gui:GetPropertyChangedSignal("AbsoluteSize"):Connect(apply)
+	camera:GetPropertyChangedSignal("ViewportSize"):Connect(apply)
+	task.defer(apply)
 end
 
 -- transparency snapshot so fades return to the designed values
@@ -146,8 +175,8 @@ local function show(win: GuiObject, anim: string, t: number, useBlur: boolean)
 	win.Visible = true
 	if anim == "pop" then
 		local s = scaleOf(win)
-		s.Scale = 0.6
-		TweenService:Create(s, TweenInfo.new(t, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+		s.Scale = 0.6 * baseOf(s)
+		TweenService:Create(s, TweenInfo.new(t, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = baseOf(s) }):Play()
 	elseif anim == "fade" then
 		fade(win, true, t)
 	elseif anim:sub(1, 5) == "slide" then
@@ -167,7 +196,8 @@ local function hide(win: GuiObject, anim: string, t: number)
 	opened[win] = nil
 	if info and info.blur then setBlur(false) end
 	if anim == "pop" then
-		TweenService:Create(scaleOf(win), TweenInfo.new(t * 0.8, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.6 }):Play()
+		local s = scaleOf(win)
+		TweenService:Create(s, TweenInfo.new(t * 0.8, Enum.EasingStyle.Back, Enum.EasingDirection.In), { Scale = 0.6 * baseOf(s) }):Play()
 	elseif anim == "fade" then
 		fade(win, false, t)
 	elseif anim:sub(1, 5) == "slide" then
@@ -177,7 +207,7 @@ local function hide(win: GuiObject, anim: string, t: number)
 	end
 	task.delay(anim == "none" and 0 or t, function()
 		win.Visible = false
-		if anim == "pop" then scaleOf(win).Scale = 1 end
+		if anim == "pop" then local s = scaleOf(win); s.Scale = baseOf(s) end
 		if anim == "fade" and originals[win] then
 			for inst, props in (originals[win] :: any) do
 				for prop, v in props do (inst :: any)[prop] = v end
@@ -253,10 +283,10 @@ for _, f in BUTTON_FX do
 		local s = scaleOf(btn)
 		local info = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 		local hovering = false
-		btn.MouseEnter:Connect(function() hovering = true; TweenService:Create(s, info, { Scale = f.hover }):Play() end)
-		btn.MouseLeave:Connect(function() hovering = false; TweenService:Create(s, info, { Scale = 1 }):Play() end)
-		btn.MouseButton1Down:Connect(function() TweenService:Create(s, info, { Scale = f.press }):Play() end)
-		btn.MouseButton1Up:Connect(function() TweenService:Create(s, info, { Scale = hovering and f.hover or 1 }):Play() end)
+		btn.MouseEnter:Connect(function() hovering = true; TweenService:Create(s, info, { Scale = f.hover * baseOf(s) }):Play() end)
+		btn.MouseLeave:Connect(function() hovering = false; TweenService:Create(s, info, { Scale = baseOf(s) }):Play() end)
+		btn.MouseButton1Down:Connect(function() TweenService:Create(s, info, { Scale = f.press * baseOf(s) }):Play() end)
+		btn.MouseButton1Up:Connect(function() TweenService:Create(s, info, { Scale = (hovering and f.hover or 1) * baseOf(s) }):Play() end)
 	end)
 end
 `;

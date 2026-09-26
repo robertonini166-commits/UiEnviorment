@@ -51,6 +51,9 @@ node cli/rbxui.mjs import MiUI.rbxmx                       # traer una UI de Stu
 
 Guía de estilo y flujo de trabajo: [CLAUDE.md](CLAUDE.md).
 
+**Servidor MCP**: Claude Desktop y Claude Code pueden usar RbxUI como herramienta (renderizar y ver el PNG, validar,
+exportar, plantillas). Instalación: [docs/MCP.md](docs/MCP.md).
+
 ## Desarrollo
 
 ```bash

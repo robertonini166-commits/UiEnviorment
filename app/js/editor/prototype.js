@@ -4,6 +4,7 @@ import { isGuiObject, isButton } from '../core/schema.js';
 import { walk } from '../core/model.js';
 import { ScreenRenderer } from '../core/renderer.js';
 import { deepClone } from '../core/types.js';
+import { DEVICES, createNode } from '../core/model.js';
 import { h, select, checkbox, numInput } from './ui.js';
 import { icon } from './icons.js';
 import { chainIds } from './geometry.js';
@@ -154,13 +155,37 @@ export class Prototype {
     if (!scr || scr.design.componentsPage) return;
     const doc = { ...s.doc, screens: [deepClone(scr)] };
     const screen = doc.screens[0];
+    const base = { w: scr.design.width, h: scr.design.height };
+    // simulate another device: resize the ScreenGui and (if enabled) apply the runtime auto-scale
+    const applyDevice = (key) => {
+      const d = key === 'design' ? { width: base.w, height: base.h } : DEVICES[key];
+      screen.design.width = d.width;
+      screen.design.height = d.height;
+      screen.design.safe = d.safe ? { ...d.safe } : undefined;
+      screen.design.device = key === 'design' ? scr.design.device : key;
+      const k = Math.min(d.width / base.w, d.height / base.h);
+      for (const c of screen.children) {
+        if (!c.props || c.ClassName === 'Folder' || c.ClassName.startsWith('UI')) continue;
+        c.children = c.children.filter((x) => x.Name !== 'RbxUIAutoScale');
+        if (scr.design.autoScale && key !== 'design') {
+          const us = createNode('UIScale', { Scale: k });
+          us.Name = 'RbxUIAutoScale';
+          c.children.unshift(us);
+        }
+      }
+    };
     const back = h('div', { class: 'preview-back' });
     const title = h('span', { style: { fontWeight: 600 } }, `▶ ${scr.Name}`);
-    const devSel = select([['fit', 'Ajustar a la ventana'], ['1', '100%']], 'fit', () => layout());
+    const devSel = select([['design', `Diseño ${base.w}×${base.h}`], ...Object.entries(DEVICES).map(([k, d]) => [k, d.label])], 'design', (v) => {
+      applyDevice(v);
+      r.render(screen);
+      layout();
+    });
+    const zoomSel = select([['fit', 'Ajustar a la ventana'], ['1', '100%']], 'fit', () => layout());
     const close = h('button', { class: 'btn' }, 'Salir (Esc)');
     const reset = h('button', { class: 'btn ghost' }, 'Reiniciar');
     const stage = h('div', { class: 'preview-stage' });
-    back.append(h('header', {}, title, h('span', { class: 'hint' }, 'Así se comportará en Roblox (animaciones del LocalScript exportado).'), h('span', { style: { flex: 1 } }), devSel, reset, close), stage);
+    back.append(h('header', {}, title, h('span', { class: 'hint' }, scr.design.autoScale ? 'Con escalado automático (como el LocalScript exportado).' : 'Así se comportará en Roblox.'), h('span', { style: { flex: 1 } }), devSel, zoomSel, reset, close), stage);
     document.body.append(back);
     const host = h('div');
     stage.append(host);
@@ -169,7 +194,7 @@ export class Prototype {
     walk(screen, (n) => ids.set(n.id, n));
     const layout = () => {
       const W = stage.clientWidth, H = stage.clientHeight;
-      const k = devSel.value === 'fit' ? Math.min(W / screen.design.width, H / screen.design.height) : 1;
+      const k = zoomSel.value === 'fit' ? Math.min(W / screen.design.width, H / screen.design.height) : 1;
       r.root.style.transform = `scale(${k})`;
       r.root.style.left = (W - screen.design.width * k) / 2 + 'px';
       r.root.style.top = (H - screen.design.height * k) / 2 + 'px';

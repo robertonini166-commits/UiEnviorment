@@ -47,7 +47,7 @@ export function SAMPLE() {
   buy.buttonFx = { hover: 1.06, press: 0.9 };
   const doc = {
     format: 'rbxui', version: 1, name: 'Mi juego simulador',
-    screens: [{ ClassName: 'ScreenGui', Name: 'MainUI', props: { ResetOnSpawn: false, ZIndexBehavior: 'Sibling' }, design: { device: 'studio', width: 1280, height: 720, background: '#3A6EA5' }, children: [hud, top, xp, buy, shop] }],
+    screens: [{ ClassName: 'ScreenGui', Name: 'MainUI', props: { ResetOnSpawn: false, ZIndexBehavior: 'Sibling' }, design: { device: 'studio', width: 1280, height: 720, background: '#3A6EA5', autoScale: true }, children: [hud, top, xp, buy, shop] }],
   };
   // wire the SHOP button to the window (ids are resolved after normalization by name)
   hud.children[1].interactions = [{ trigger: 'click', action: 'toggle', targetName: 'ShopWindow', animation: 'pop', duration: 0.22, blur: true, exclusive: true }];

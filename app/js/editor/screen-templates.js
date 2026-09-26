@@ -5,7 +5,7 @@ import { SAMPLE } from './sample.js';
 
 const stroke = (t = 3, mode = 'Border') => ({ ClassName: 'UIStroke', props: { Thickness: t, Color: '#000000', ApplyStrokeMode: mode, LineJoinMode: mode === 'Contextual' ? 'Round' : 'Miter' } });
 const grad = ([a, b], rot = 90) => ({ ClassName: 'UIGradient', props: { Color: [[0, a], [1, b]], Rotation: rot } });
-const screen = (Name, children, background = '#3A6EA5') => ({ ClassName: 'ScreenGui', Name, props: { ResetOnSpawn: false, ZIndexBehavior: 'Sibling' }, design: { device: 'studio', width: 1280, height: 720, background }, children });
+const screen = (Name, children, background = '#3A6EA5') => ({ ClassName: 'ScreenGui', Name, props: { ResetOnSpawn: false, ZIndexBehavior: 'Sibling' }, design: { device: 'studio', width: 1280, height: 720, background, autoScale: true }, children });
 const fx = (n, hover = 1.06, press = 0.92) => Object.assign(n, { buttonFx: { hover, press } });
 const place = (n, props) => Object.assign(n, { props: Object.assign({}, n.props, props) });
 const closeWith = (win) => {
