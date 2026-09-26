@@ -35,6 +35,13 @@ export function openExportDialog(app, preset) {
       return c;
     }));
     body.append(cardEls);
+    let embedded = false;
+    try {
+      embedded = window.self !== window.top;
+    } catch {
+      embedded = true;
+    }
+    if (embedded) body.append(h('div', { class: 'info-box' }, 'Estás usando RbxUI dentro de una vista incrustada, que no permite descargar archivos. Usa ', h('b', {}, 'Copiar código'), ' y pégalo en la Command Bar de Roblox Studio (View › Command Bar). Para descargar .rbxmx abre RbxUI en su propia web o en local.'));
     body.append(h('h4', {}, 'Pantallas'));
     body.append(h('div', { style: { display: 'flex', gap: '12px', flexWrap: 'wrap' } }, screens.map((sc) => checkbox(`${sc.Name} (${sc.design.width}×${sc.design.height})`, chosen.has(sc.id), (v) => {
       v ? chosen.add(sc.id) : chosen.delete(sc.id);

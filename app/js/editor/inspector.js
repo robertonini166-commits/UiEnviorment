@@ -5,7 +5,7 @@ import { getProps, ENUMS, isText, isImage, isGuiObject, isModifier, isLayout, is
 import { FONT_FAMILIES, availableWeights, isApproximated, ensureFont, cssFamily } from '../core/fonts.js';
 import { DEVICES } from '../core/model.js';
 import { evalColorSequence, evalNumberSequence, rgba, round, clamp, deepEqual } from '../core/types.js';
-import { h, numInput, textInput, select, checkbox, seg, field, colorField, popover, menu, toast, colorPicker } from './ui.js';
+import { h, numInput, textInput, select, checkbox, seg, field, colorField, popover, menu, toast, colorPicker, askText } from './ui.js';
 import { icon, classIcon } from './icons.js';
 import { textLayoutFor } from '../core/paint.js';
 
@@ -757,9 +757,11 @@ export class Inspector {
         popover(colorPickerFor((c) => wrapSel(`<font color="${c}">`, '</font>'), this.store.doc.swatches), e.currentTarget, { side: 'left' });
       }, { color: '#FFD93D' });
       btn('◯', 'Contorno <stroke>', () => wrapSel('<stroke color="#000000" thickness="2">', '</stroke>'));
-      btn('±', 'Tamaño <font size>', () => {
-        const sz = prompt('Tamaño (px)', String(Math.round((one.props.TextSize || 20) * 1.3)));
-        if (sz) wrapSel(`<font size="${parseInt(sz, 10)}">`, '</font>');
+      btn('±', 'Tamaño <font size>', async () => {
+        const a = ta.selectionStart, b = ta.selectionEnd;
+        const sz = await askText('Tamaño (px)', String(Math.round((one.props.TextSize || 20) * 1.3)));
+        ta.setSelectionRange(a, b);
+        if (sz && parseInt(sz, 10) > 0) wrapSel(`<font size="${parseInt(sz, 10)}">`, '</font>');
       });
       body.append(tb, h('div', { class: 'field col' }, ta));
       if (one.props.RichText) body.append(h('div', { class: 'hint', style: { marginTop: '-2px', marginBottom: '6px' } }, 'RichText activo: las etiquetas se aplican en Roblox exactamente igual.'));

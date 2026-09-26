@@ -20,7 +20,7 @@ import { createDocument, normalizeDocument, DEVICES } from './core/model.js';
 import { GUI_OBJECTS, MODIFIERS, canParent, isGuiObject } from './core/schema.js';
 import { registerUserFont, FONT_FAMILIES, setRobloxTextMetrics, clearMeasureCache } from './core/fonts.js';
 import { ScreenRenderer } from './core/renderer.js';
-import { h, menu, toast, download, dialog, closePopovers, popover } from './editor/ui.js';
+import { h, menu, toast, download, dialog, closePopovers, popover, askConfirm } from './editor/ui.js';
 import { icon } from './editor/icons.js';
 import { kvGet, startAutosave } from './editor/persist.js';
 import { readAsDataURL } from './editor/assets.js';
@@ -602,8 +602,8 @@ class App {
   }
 
   // ---------- files ----------
-  newProject() {
-    if (this.store.dirty && !confirm('¿Crear un proyecto nuevo? Los cambios actuales siguen en el autoguardado hasta que edites el nuevo.')) return;
+  async newProject() {
+    if (this.store.dirty && !(await askConfirm('Proyecto nuevo', 'Se reemplazará el proyecto actual. Guárdalo antes (Archivo › Guardar) si lo quieres conservar.', 'Crear nuevo'))) return;
     this.store.replaceDocument(createDocument());
     this.canvas.zoomToFit();
   }

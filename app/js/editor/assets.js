@@ -3,7 +3,7 @@
 // the rbxassetid you get after uploading it to Roblox (Asset Manager > Bulk Import).
 
 import { newId } from '../core/types.js';
-import { h, popover, textInput, toast, download } from './ui.js';
+import { h, popover, textInput, toast, download, askConfirm } from './ui.js';
 import { icon } from './icons.js';
 import { makeZip } from './zip.js';
 
@@ -237,8 +237,8 @@ export class Assets {
       pop.close();
     });
     const del = h('button', { class: 'btn small danger' }, 'Eliminar');
-    del.addEventListener('click', () => {
-      if (uses.length && !confirm(`Se usa en ${uses.length} objeto(s). ¿Eliminar igualmente?`)) return;
+    del.addEventListener('click', async () => {
+      if (uses.length && !(await askConfirm('Eliminar imagen', `Se usa en ${uses.length} objeto(s). ¿Eliminar igualmente?`, 'Eliminar'))) return;
       this.remove(a.id);
       pop.close();
     });

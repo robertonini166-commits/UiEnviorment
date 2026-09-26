@@ -480,3 +480,35 @@ export async function copyText(text) {
     return ok;
   }
 }
+
+/** In-page replacement for window.prompt (blocked in some embeds). Resolves to the text or null. */
+export function askText(title, value = '', hint = '') {
+  return new Promise((resolve) => {
+    let done = false;
+    const inp = h('input', { class: 'txt', value });
+    inp.addEventListener('keydown', (e) => {
+      e.stopPropagation();
+      if (e.key === 'Enter') {
+        done = true;
+        resolve(inp.value);
+        d.close();
+      }
+    });
+    const d = dialog(title, h('div', { style: { display: 'grid', gap: '8px' } }, inp, hint ? h('div', { class: 'hint' }, hint) : null), [
+      { label: 'Cancelar' },
+      { label: 'Aceptar', primary: true, action: () => { done = true; resolve(inp.value); } },
+    ], { width: '420px', onClose: () => { if (!done) resolve(null); } });
+    setTimeout(() => inp.select(), 0);
+  });
+}
+
+/** In-page replacement for window.confirm. Resolves true/false. */
+export function askConfirm(title, text, okLabel = 'Aceptar') {
+  return new Promise((resolve) => {
+    let done = false;
+    dialog(title, h('p', {}, text), [
+      { label: 'Cancelar' },
+      { label: okLabel, primary: true, action: () => { done = true; resolve(true); } },
+    ], { width: '420px', onClose: () => { if (!done) resolve(false); } });
+  });
+}

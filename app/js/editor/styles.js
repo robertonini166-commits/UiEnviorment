@@ -6,7 +6,7 @@
 import { walk } from '../core/model.js';
 import { isText, isGuiObject } from '../core/schema.js';
 import { newId, deepEqual, deepClone } from '../core/types.js';
-import { h, menu, popover, colorPicker, textInput, toast } from './ui.js';
+import { h, menu, popover, colorPicker, textInput, toast, askText } from './ui.js';
 import { icon } from './icons.js';
 import { cssFamily, ensureFont } from '../core/fonts.js';
 import { WEIGHTS } from '../core/schema.js';
@@ -118,19 +118,19 @@ export class Styles {
     });
   }
 
-  addColorFromSelection() {
+  async addColorFromSelection() {
     const n = this.store.selectedNodes()[0];
     const value = n ? (isText(n.ClassName) && n.props.BackgroundTransparency >= 1 ? n.props.TextColor3 : n.props.BackgroundColor3 || n.props.Color) : '#FF7A00';
-    const name = prompt('Nombre del estilo de color', 'Color ' + (this.styles.colors.length + 1));
+    const name = await askText('Nombre del estilo de color', 'Color ' + (this.styles.colors.length + 1));
     if (!name) return;
     const id = newId('s');
     this.store.edit('Nuevo estilo de color', () => this.styles.colors.push({ id, name, value: value || '#FFFFFF' }));
   }
 
-  addTextFromSelection() {
+  async addTextFromSelection() {
     const n = this.store.selectedNodes().find((x) => isText(x.ClassName));
     if (!n) return toast('Selecciona un texto para crear el estilo');
-    const name = prompt('Nombre del estilo de texto', 'Título');
+    const name = await askText('Nombre del estilo de texto', 'Título');
     if (!name) return;
     const id = newId('t');
     this.store.edit('Nuevo estilo de texto', () => {
@@ -172,8 +172,8 @@ export class Styles {
           { label: 'Aplicar a sus contornos (UIStroke)', action: () => this.applyColor(c.id, 'Color', nodes.flatMap((n) => n.children.filter((x) => x.ClassName === 'UIStroke'))) },
           { label: 'Aplicar como tinte de imagen', action: () => this.applyColor(c.id, 'ImageColor3', nodes) },
           { sep: true },
-          { label: 'Renombrar', action: () => {
-            const nm = prompt('Nombre', c.name);
+          { label: 'Renombrar', action: async () => {
+            const nm = await askText('Nombre', c.name);
             if (nm) this.store.edit('Renombrar estilo', () => (c.name = nm));
           } },
           { label: 'Eliminar estilo', action: () => this.store.edit('Eliminar estilo', () => st.colors.splice(st.colors.indexOf(c), 1)) },
@@ -194,8 +194,8 @@ export class Styles {
           { label: 'Actualizar desde la selección', disabled: !nodes.length, action: () => this.store.edit('Actualizar estilo', () => {
             for (const k of TEXT_KEYS) t[k] = deepClone(nodes[0].props[k]);
           }) },
-          { label: 'Renombrar', action: () => {
-            const nm = prompt('Nombre', t.name);
+          { label: 'Renombrar', action: async () => {
+            const nm = await askText('Nombre', t.name);
             if (nm) this.store.edit('Renombrar estilo', () => (t.name = nm));
           } },
           { label: 'Eliminar estilo', action: () => this.store.edit('Eliminar estilo', () => st.texts.splice(st.texts.indexOf(t), 1)) },
