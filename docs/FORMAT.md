@@ -46,6 +46,8 @@ puede leer y escribir este JSON a mano, y la exportación a Roblox es 1:1.
 ```
 
 - `id` es opcional (se genera solo).
+- La zona útil de un ScreenGui empieza **debajo de la barra superior de Roblox (58 px)** salvo que pongas
+  `"IgnoreGuiInset": true` o `"ScreenInsets": "None"`, igual que en Roblox.
 - Las propiedades también pueden ir en el nivel del nodo (`{"ClassName":"Frame","Size":[...]}`).
 - Lo que no pongas toma los **valores por defecto del editor** (Frame blanco sin borde, TextLabel
   Montserrat Bold 24 blanco sin fondo, etc.). El exportador escribe siempre todas las propiedades.
