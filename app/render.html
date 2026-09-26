@@ -1,10 +1,10 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><link rel="stylesheet" href="../app/css/rbx.css">
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="css/rbx.css">
 <style>body{margin:0;background:#222} #host>.rbx-screen{background:#3A6EA5}</style></head>
 <body><div id="host"></div>
 <script type="module">
-import { normalizeDocument } from '../app/js/core/model.js';
-import { ScreenRenderer } from '../app/js/core/renderer.js';
+import { normalizeDocument } from './js/core/model.js';
+import { ScreenRenderer } from './js/core/renderer.js';
 const q = new URLSearchParams(location.search);
 const src = await (await fetch(q.get('doc'))).json();
 const { doc, warnings } = normalizeDocument(src);

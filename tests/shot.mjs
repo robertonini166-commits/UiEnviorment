@@ -20,7 +20,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 page.on('console', (m) => { if (m.type() === 'error' || m.type() === 'warning') console.log('[page]', m.text()); });
 page.on('pageerror', (e) => console.log('[pageerror]', e.message));
-await page.goto(`http://localhost:${port}/tests/render.html?doc=/${path.relative(root, path.resolve(docPath))}&screen=${idx}`);
+await page.goto(`http://localhost:${port}/app/render.html?doc=/${path.relative(root, path.resolve(docPath))}&screen=${idx}`);
 await page.waitForFunction(() => window.__ready, null, { timeout: 15000 });
 await page.waitForTimeout(300);
 const warnings = await page.evaluate(() => window.__warnings);

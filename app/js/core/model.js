@@ -199,6 +199,7 @@ export function normalizeDocument(input) {
     const node = { id, ClassName, Name: String(raw.Name || rawProps.Name || ClassName), props, children: [] };
     if (raw.editor) node.editor = raw.editor;
     if (raw.interactions) node.interactions = raw.interactions;
+    if (raw.buttonFx) node.buttonFx = raw.buttonFx;
     if (raw.design) node.design = raw.design;
     (raw.children || []).forEach((c, i) => {
       const n = normNode(c, `${path}/${c.Name || c.ClassName || i}`);
@@ -278,6 +279,7 @@ export function compactNode(node) {
   const out = { ClassName: node.ClassName, Name: node.Name };
   if (Object.keys(props).length) out.props = props;
   if (node.interactions?.length) out.interactions = node.interactions;
+  if (node.buttonFx) out.buttonFx = node.buttonFx;
   if (node.children.length) out.children = node.children.map(compactNode);
   return out;
 }

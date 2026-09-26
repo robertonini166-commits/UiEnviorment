@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "serve": "node cli/serve.mjs",
-    "test": "node --test tests/unit/",
+    "test": "node --test tests/unit/*.test.mjs",
     "e2e": "node tests/e2e.mjs"
   },
   "devDependencies": {

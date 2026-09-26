@@ -2,7 +2,7 @@
 // "Save to File" — into RbxUI screens. Works in the browser (DOMParser) and in Node
 // when a DOMParser implementation is passed in.
 
-import { getProps, SUPPORTED, ENUMS, canParent, resolveFontFamily, weightName, defaultsFor, isGuiObject } from '../core/schema.js';
+import { getProps, SUPPORTED, ENUMS, canParent, resolveFontFamily, weightName, defaultsFor, isGuiObject, applyShorthands, robloxDefaults } from '../core/schema.js';
 import { newId, rgbToHex } from '../core/types.js';
 import { DEVICES } from '../core/model.js';
 
@@ -102,7 +102,7 @@ export function importRbxmx(xml, Parser = globalThis.DOMParser) {
     }
     const defs = getProps(cls);
     const props = {};
-    const rbxDefaults = defaultsFor(cls);
+    const rbxDefaults = robloxDefaults(cls);
     let name = cls;
     let legacyFont = null, legacyFontSize = null;
     const propsEl = child(item, 'Properties');
@@ -129,6 +129,7 @@ export function importRbxmx(xml, Parser = globalThis.DOMParser) {
     const node = { id: newId(), ClassName: cls, Name: name, props: {}, children: [] };
     for (const [k, v] of Object.entries(rbxDefaults)) if (defs[k] && k !== 'Name') node.props[k] = v;
     Object.assign(node.props, props);
+    applyShorthands(cls, node.props, Object.keys(props));
     if (!props.FontFace && legacyFont != null && ENUM_FONT[legacyFont]) {
       const [family, weight, style = 'Normal'] = ENUM_FONT[legacyFont];
       node.props.FontFace = { family, weight, style };
