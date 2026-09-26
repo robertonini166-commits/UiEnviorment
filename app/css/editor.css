@@ -219,3 +219,6 @@ pre.code { background: #1a1a1a; border-radius: 5px; padding: 8px; overflow: auto
 }
 .rt-toolbar { display: flex; gap: 2px; margin-bottom: 4px; flex-wrap: wrap; }
 .rt-toolbar .btn { min-width: 26px; padding: 2px 6px; }
+body.outline-mode .rbx-own { display: none; }
+body.outline-mode .rbx-node { outline: 1px solid rgba(255,255,255,.55); outline-offset: -0.5px; }
+body.outline-mode .screen-bg { background: #1a1a1a !important; background-image: none !important; }

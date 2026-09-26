@@ -176,6 +176,7 @@ class App {
       { label: (this.store.view.showRulers ? '✓ ' : '') + 'Reglas y guías', shortcut: 'Mayús R', action: () => this.store.setView({ showRulers: !this.store.view.showRulers }) },
       { label: (this.store.view.pixelGrid ? '✓ ' : '') + 'Cuadrícula de píxeles', action: () => this.store.setView({ pixelGrid: !this.store.view.pixelGrid }) },
       { label: (this.store.view.showCoreUI ? '✓ ' : '') + 'Barra de Roblox y controles móviles', action: () => this.store.setView({ showCoreUI: !this.store.view.showCoreUI }) },
+      { label: (this.store.view.outline ? '✓ ' : '') + 'Vista de contornos', shortcut: 'Ctrl Y', action: () => this.store.setView({ outline: !this.store.view.outline }) },
     ], b));
     z.append(b);
   }
@@ -388,7 +389,7 @@ class App {
         fn();
       };
       if (mod && k === 'z') return run(() => (e.shiftKey ? s.redo() : s.undo()));
-      if (mod && k === 'y') return run(() => s.redo());
+      if (mod && k === 'y') return run(() => s.setView({ outline: !s.view.outline }));
       if (mod && k === 'd') return run(() => c.duplicate());
       if (mod && k === 'a') return run(() => c.selectAll());
       if (mod && k === 's') return run(() => this.saveFile());

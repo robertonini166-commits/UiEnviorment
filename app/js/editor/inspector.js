@@ -151,6 +151,15 @@ export class Inspector {
       })(),
     );
     wrap.append(this.section('screen', 'Pantalla (ScreenGui)', body, { collapsible: false }));
+    // layout grid (columns) — editor-only helper like Figma's layout grids
+    const g = d.grid || { columns: 0, gutter: 16, margin: 24 };
+    const setG = (patch) => s.edit('Cuadrícula', () => (scr.design.grid = Object.assign({}, g, patch)));
+    wrap.append(this.section('grid', 'Cuadrícula de columnas', h('div', {},
+      h('div', { class: 'grid3' },
+        numInput({ label: 'Col', value: g.columns, step: 1, decimals: 0, min: 0, max: 24, title: 'Columnas (0 = sin cuadrícula)', onChange: (v, f) => f && setG({ columns: v }) }),
+        numInput({ label: 'Gap', value: g.gutter, step: 1, decimals: 0, min: 0, title: 'Separación', onChange: (v, f) => f && setG({ gutter: v }) }),
+        numInput({ label: 'Mar', value: g.margin, step: 1, decimals: 0, min: 0, title: 'Margen lateral', onChange: (v, f) => f && setG({ margin: v }) })),
+      h('div', { class: 'hint', style: { marginTop: '6px' } }, 'Guía visual (no se exporta). Tip: 12 columnas con margen 24 es un buen punto de partida.'))));
     const P = scr.props;
     const setS = (k, v) => s.edit(k, () => (scr.props[k] = v));
     wrap.append(this.section('screengui', 'Propiedades de ScreenGui', h('div', {},

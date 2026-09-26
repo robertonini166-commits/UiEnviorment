@@ -70,6 +70,7 @@ export class Canvas {
     const v = s.view;
     this.world.style.transform = `translate(${v.panX}px,${v.panY}px) scale(${v.zoom})`;
     document.body.classList.toggle('tool-create', !!CREATE_TOOLS[s.tool]);
+    document.body.classList.toggle('outline-mode', !!v.outline);
     const alive = new Set();
     const roots = s.editingComponentId ? [] : s.doc.screens;
     for (const scr of roots) {
