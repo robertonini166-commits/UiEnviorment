@@ -1,0 +1,12 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { normalizeDocument } from '../app/js/core/model.js';
+import { exportRbxmx } from '../app/js/export/rbxmx.js';
+import { exportLuau } from '../app/js/export/luau.js';
+const [inp, outBase] = process.argv.slice(2);
+const { doc, warnings } = normalizeDocument(JSON.parse(readFileSync(inp, 'utf8')));
+if (warnings.length) console.log('import warnings', warnings);
+const r = exportRbxmx(doc);
+writeFileSync(outBase + '.rbxmx', r.xml);
+const l = exportLuau(doc);
+writeFileSync(outBase + '.luau', l.code);
+console.log('instances', r.report.count, 'warnings', r.report.warnings, 'missing', [...r.report.missingAssets.keys()]);

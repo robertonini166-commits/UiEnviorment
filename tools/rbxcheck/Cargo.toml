@@ -1,0 +1,13 @@
+[package]
+name = "rbxcheck"
+version = "0.1.0"
+edition = "2021"
+
+# Validates .rbxmx files produced by RbxUI using rbx-dom (the library behind Rojo):
+# parses the XML with the Roblox reflection database, checks every property type
+# and re-serializes to binary .rbxm (proves the model is loadable).
+[dependencies]
+rbx_xml = "*"
+rbx_binary = "*"
+rbx_dom_weak = "*"
+rbx_reflection_database = "*"

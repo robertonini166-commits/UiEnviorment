@@ -68,7 +68,7 @@ export function walk(node, fn, parent = null, depth = 0) {
 }
 
 export function allRoots(doc) {
-  return [...doc.screens, ...Object.values(doc.components || {}).map((c) => c.root)];
+  return doc.screens;
 }
 
 /** Builds id -> {node, parent, screen} index for a document. */
@@ -225,14 +225,45 @@ export function normalizeDocument(input) {
     const dev = DEVICES[n.design?.device] || DEVICES.studio;
     n.design = Object.assign({ x, y: 0, width: dev.width, height: dev.height, device: n.design?.device || 'studio', background: '#3A6EA5' }, raw.design || {});
     x = n.design.x + n.design.width + 200;
+    resolveInteractionTargets(n, warnings);
     doc.screens.push(n);
   }
   if (!doc.screens.length) doc.screens.push(createScreen());
+  // components: masters live on the "Componentes" screen; entries point to them by id
   for (const [id, comp] of Object.entries(src.components || {})) {
-    const root = comp.root && normNode(comp.root, `component:${comp.name || id}`);
-    if (root) doc.components[id] = { id, name: comp.name || root.Name, root };
+    if (comp && comp.masterId) doc.components[id] = { id, name: comp.name || id, masterId: comp.masterId, snapshot: comp.snapshot || null };
   }
   return { doc, warnings };
+}
+
+/**
+ * Interactions may reference targets by id, by Name ("ShopWindow") or by path
+ * ("ShopWindow/Header/CloseButton"); resolve names/paths to ids.
+ */
+export function resolveInteractionTargets(screen, warnings = []) {
+  const ids = new Set();
+  const byName = new Map();
+  const byPath = new Map();
+  const visit = (n, path) => {
+    ids.add(n.id);
+    if (!byName.has(n.Name)) byName.set(n.Name, n.id);
+    byPath.set(path, n.id);
+    for (const c of n.children) visit(c, path ? path + '/' + c.Name : c.Name);
+  };
+  for (const c of screen.children) visit(c, c.Name);
+  walk(screen, (n) => {
+    for (const it of n.interactions || []) {
+      const ref = it.targetName ?? it.target;
+      delete it.targetName;
+      if (!ref || ids.has(ref)) continue;
+      const id = byPath.get(ref) || byName.get(ref) || byName.get(String(ref).split('/').pop());
+      if (id) it.target = id;
+      else {
+        warnings.push(`${n.Name}: destino de interacción "${ref}" no encontrado`);
+        it.target = null;
+      }
+    }
+  });
 }
 
 export function serializeDocument(doc) {

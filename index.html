@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RbxUI Studio</title>
+<meta name="description" content="Editor tipo Figma para interfaces de Roblox con exportación directa a Roblox Studio (.rbxmx / Luau).">
+<link rel="icon" href="app/img/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="app/css/rbx.css">
+<link rel="stylesheet" href="app/css/editor.css">
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <div class="tb-left">
+      <button class="logo" id="menu-btn" title="Menú principal"><img src="app/img/icon.svg" alt=""><span>RbxUI</span></button>
+      <div id="toolbar" class="tools"></div>
+    </div>
+    <div class="tb-center"><input id="doc-name" spellcheck="false" title="Nombre del proyecto"></div>
+    <div class="tb-right">
+      <div id="zoom-ctl"></div>
+      <button id="play-btn" class="btn ghost" title="Probar interacciones (F5)">▶ Probar</button>
+      <button id="export-btn" class="btn primary" title="Exportar a Roblox (Ctrl+E)">Exportar a Roblox</button>
+    </div>
+  </header>
+  <aside id="left">
+    <nav class="tabs" id="left-tabs"></nav>
+    <div id="left-body"></div>
+  </aside>
+  <main id="canvas-wrap">
+    <div id="canvas">
+      <div id="world"></div>
+    </div>
+    <svg id="overlay"></svg>
+    <div id="rulers"></div>
+    <div id="canvas-hint"></div>
+  </main>
+  <aside id="right">
+    <nav class="tabs" id="right-tabs"></nav>
+    <div id="right-body"></div>
+  </aside>
+</div>
+<div id="popover-layer"></div>
+<div id="toast"></div>
+<script type="module" src="app/js/main.js"></script>
+</body>
+</html>
