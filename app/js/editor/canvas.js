@@ -726,6 +726,7 @@ export class Canvas {
           walk(c, (x) => {
             x.id = x.id + '_' + Math.random().toString(36).slice(2, 7);
           });
+          if (n.editor?.isComponent) this.app.components?.linkCloneToMaster(c, n);
           c.Name = uniqueName(p, n.Name);
           p.children.splice(p.children.indexOf(n) + 1, 0, c);
           clones.push(c.id);

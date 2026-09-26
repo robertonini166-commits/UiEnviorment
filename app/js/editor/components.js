@@ -79,6 +79,19 @@ export class Components {
     toast(`Componente "${n.Name}" creado (maestro en la pantalla Componentes)`);
   }
 
+  /** A clone of a master becomes an instance linked to it (Figma: duplicating a main component). */
+  linkCloneToMaster(clone, master) {
+    const pairUp = (a, m) => {
+      a.editor = Object.assign({}, a.editor, { masterId: m.id });
+      delete a.editor.isComponent;
+      delete a.editor.componentId;
+      a.children.forEach((c, i) => m.children[i] && pairUp(c, m.children[i]));
+    };
+    pairUp(clone, master);
+    clone.editor.componentId = master.editor.componentId;
+    return clone;
+  }
+
   instances(cid) {
     const out = [];
     for (const scr of this.doc.screens) walk(scr, (n) => {

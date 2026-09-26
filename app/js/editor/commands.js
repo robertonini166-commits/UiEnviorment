@@ -180,6 +180,7 @@ export class Commands {
         }
         const p = s.parentOf(id);
         const c = cloneWithNewIds(n);
+        if (n.editor?.isComponent) this.app.components?.linkCloneToMaster(c, n);
         c.Name = uniqueName(p, n.Name);
         const inLayout = p.children.some((x) => isLayout(x.ClassName));
         if (isGuiObject(c.ClassName) && !inLayout && c.props.Position) {
