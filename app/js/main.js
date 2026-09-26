@@ -913,6 +913,7 @@ async function boot() {
   if (!doc) doc = normalizeDocument(SAMPLE()).doc;
   const app = new App(doc);
   window.rbxui = app;
+  if (first && !params.has('fresh') && !navigator.webdriver) welcome(app);
   if (first) {
     const map = await ensureKitAssets(app);
     app.store.edit('Ejemplo', () => {
@@ -921,6 +922,30 @@ async function boot() {
     app.store.past = [];
     app.canvas.zoomToFit();
   }
+}
+
+function welcome(app) {
+  const opt = (title, text, fn) => {
+    const c = h('div', { class: 'card-opt' }, h('b', {}, title), h('span', {}, text));
+    c.addEventListener('click', () => {
+      d.close();
+      fn();
+    });
+    return c;
+  };
+  const d = dialog('Bienvenido a RbxUI Studio', h('div', {},
+    h('p', {}, 'Diseña interfaces de Roblox como en Figma. Cada capa es una instancia real de Roblox, así que al exportar nada se descuadra.'),
+    h('div', { class: 'cards', style: { marginTop: '12px' } },
+      opt('Ver el ejemplo', 'HUD + tienda estilo simulador con interacciones (ya está abierto).', () => {}),
+      opt('Proyecto vacío', 'Una pantalla 1280×720 en blanco.', () => app.newProject()),
+      opt('Desde plantilla', 'Inventario, recompensa diaria, rebirth, tienda premium, ajustes…', () => {
+        app.leftTab = 'kit';
+        document.querySelectorAll('#left-tabs button').forEach((b) => b.classList.toggle('on', b.textContent === 'Kit'));
+        app.renderLeft();
+      }),
+      opt('Importar de Roblox', 'Abre un .rbxmx guardado desde Studio para editarlo aquí.', () => app.importRbxmxFile())),
+    h('p', { class: 'hint', style: { marginTop: '12px' } }, 'Atajos: F Frame · T Texto · B Botón · I Imagen · Mayús+A auto layout · Ctrl+E exportar · F5 probar. Todo se guarda solo en este navegador.')),
+  [{ label: 'Empezar', primary: true }], { width: '720px' });
 }
 
 boot();

@@ -43,8 +43,9 @@ Referencia: "Stud Style RNG" de WangUI. Reglas (obligatorias salvo que te pidan 
 - Esquinas **rectas** (sin UICorner) salvo botones redondeados puntuales. Contorno negro (`UIStroke`
   Border, 3-4 px, `LineJoinMode: Miter`).
 - Brillo tipo cristal en toda pieza de color: `UIGradient` vertical (claro→oscuro) + hijos `Gloss`
-  (mitad superior blanca con transparencia ~0.8), `Shine` (línea blanca arriba) y `Bevel` (franja oscura
-  abajo). Ver `gloss()` en templates.js.
+  (mitad superior blanca con transparencia ~0.8, corte al 48 %), `Shine` (línea blanca arriba), `Reflex`
+  (2 reflejos diagonales a 112° con UIGradient) y `Bevel` (franja oscura abajo). Ver `gloss()`, `innerRim()`
+  (reborde interior claro), `textShadow()` y `robuxButton()` en templates.js.
 - Studs en todo lo de color: `ImageLabel` "Studs" con `ScaleType: Tile`, `TileSize` 37 px, transparencia
   ~0.55 (textura propia generada por código: `makeStudTexture`). Más grande = demasiado.
 - Ventanas: cuerpo carbón igual en todas (`#31333B → #292B32`), **color solo en la cabecera** (50 px,
