@@ -13,12 +13,44 @@ const stroke = (t = 3, mode = 'Border', color = '#000000', extra = {}) => ({ Cla
 const grad = ([a, b], rot = 90) => ({ ClassName: 'UIGradient', props: { Color: [[0, a], [1, b]], Rotation: rot } });
 const corner = (r) => ({ ClassName: 'UICorner', props: { CornerRadius: Array.isArray(r) ? r : [0, r] } });
 
-export function gloss(z = 2) {
-  return [
+/**
+ * "Glass" look of the Stud Style (all real Roblox instances):
+ *  Gloss   upper half lighter, hard cut at 48 %
+ *  Shine   thin white line at the top
+ *  Reflex  two diagonal reflections at 112° (white frame + UIGradient transparency bands)
+ *  Bevel   dark strip at the bottom
+ */
+export function gloss(z = 2, { reflex = true } = {}) {
+  const out = [
     { ClassName: 'Frame', Name: 'Gloss', props: { Size: [1, 0, 0.48, 0], BackgroundColor3: '#FFFFFF', BackgroundTransparency: 0.8, ZIndex: z } },
     { ClassName: 'Frame', Name: 'Shine', props: { Size: [1, 0, 0, 2], BackgroundColor3: '#FFFFFF', BackgroundTransparency: 0.35, ZIndex: z } },
     { ClassName: 'Frame', Name: 'Bevel', props: { AnchorPoint: [0, 1], Position: [0, 0, 1, 0], Size: [1, 0, 0, 4], BackgroundColor3: '#000000', BackgroundTransparency: 0.72, ZIndex: z } },
   ];
+  if (reflex) {
+    out.push({
+      ClassName: 'Frame', Name: 'Reflex', props: { Size: [1, 0, 1, 0], BackgroundColor3: '#FFFFFF', BackgroundTransparency: 0, ZIndex: z },
+      children: [{ ClassName: 'UIGradient', props: { Rotation: 112, Color: [[0, '#FFFFFF'], [1, '#FFFFFF']],
+        Transparency: [[0, 1], [0.2, 1], [0.21, 0.82], [0.27, 0.82], [0.28, 1], [0.31, 1], [0.32, 0.9], [0.35, 0.9], [0.36, 1], [1, 1]] } }],
+    });
+  }
+  return out;
+}
+
+/** Thin light rim inside colored pieces ("reborde interior claro fino"). */
+export const innerRim = (t = 1.5, transparency = 0.55) => ({ ClassName: 'UIStroke', Name: 'InnerRim', props: { Thickness: t, Color: '#FFFFFF', Transparency: transparency, ApplyStrokeMode: 'Border', BorderStrokePosition: 'Inner', LineJoinMode: 'Miter', ZIndex: 2 } });
+
+/** Black drop shadow for big titles: a sibling TextLabel placed behind, 3px lower. */
+export function textShadow(lbl, dy = 3) {
+  const shadow = JSON.parse(JSON.stringify(lbl));
+  shadow.Name = lbl.Name + 'Shadow';
+  const P = shadow.props;
+  const pos = P.Position || [0, 0, 0, 0];
+  P.Position = [pos[0], pos[1], pos[2], pos[3] + dy];
+  P.TextColor3 = '#000000';
+  P.TextTransparency = 0.35;
+  P.ZIndex = (lbl.props.ZIndex ?? 5) - 1;
+  shadow.children = (shadow.children || []).map((c) => (c.ClassName === 'UIStroke' ? { ...c, props: { ...c.props, Transparency: 0.35 } } : c));
+  return shadow;
 }
 
 export const studs = (tile = 37, transparency = 0.55, z = 2) => ({
@@ -39,8 +71,20 @@ export function studButton(name, colors, text, w = 180, hgt = 56, extra = {}) {
   return {
     ClassName: 'TextButton', Name: name,
     props: { Size: [0, w, 0, hgt], BackgroundColor3: '#FFFFFF', Text: '', AutoButtonColor: false, AnchorPoint: [0.5, 0.5], Position: [0.5, 0, 0.5, 0], ...extra },
-    children: [grad(colors), stroke(3), ...gloss(), studs(37, 0.55), label('Label', text, Math.round(hgt * 0.42))],
+    children: [grad(colors), stroke(2.5), innerRim(), ...gloss(), studs(37, 0.55), label('Label', text, Math.round(hgt * 0.42))],
   };
+}
+
+/** Pink Robux button with the price badge in the corner (the Robux logo is an image you add). */
+export function robuxButton(text = 'SALTAR', price = '49', w = 200, hgt = 56) {
+  const b = studButton('RobuxButton', PALETTE.pink, text, w, hgt);
+  b.children.push({
+    ClassName: 'Frame', Name: 'PriceBadge', props: { AnchorPoint: [1, 0], Position: [1, 8, 0, -12], Size: [0, 74, 0, 26], BackgroundColor3: '#FFFFFF', ZIndex: 7 },
+    children: [grad(PALETTE.dark), stroke(2), innerRim(1, 0.7),
+      { ClassName: 'ImageLabel', Name: 'RobuxIcon', props: { AnchorPoint: [0, 0.5], Position: [0, 5, 0.5, 0], Size: [0, 18, 0, 18], BackgroundTransparency: 1, ScaleType: 'Fit', ZIndex: 8 } },
+      label('Price', price, 16, { Position: [0, 24, 0, 0], Size: [1, -28, 1, 0], TextXAlignment: 'Left', ZIndex: 8 }, 2)],
+  });
+  return b;
 }
 
 export function studWindow(title = 'TIENDA', colors = PALETTE.orange, w = 560, hgt = 380) {
@@ -54,7 +98,8 @@ export function studWindow(title = 'TIENDA', colors = PALETTE.orange, w = 560, h
         ClassName: 'Frame', Name: 'Header', props: { Size: [1, 0, 0, 50], BackgroundColor3: '#FFFFFF', ZIndex: 3 },
         children: [grad(colors), stroke(3), ...gloss(4), studs(56, 0.55, 4),
           { ClassName: 'Frame', Name: 'IconSlot', props: { Position: [0, 10, 0.5, 0], AnchorPoint: [0, 0.5], Size: [0, 40, 0, 40], BackgroundTransparency: 1, ZIndex: 5 } },
-          label('Title', title, 26, { Position: [0, 58, 0, 0], Size: [1, -120, 1, 0], TextXAlignment: 'Left' }),
+          textShadow(label('Title', title, 26, { Position: [0, 58, 0, 0], Size: [1, -120, 1, 0], TextXAlignment: 'Left', ZIndex: 6 })),
+          label('Title', title, 26, { Position: [0, 58, 0, 0], Size: [1, -120, 1, 0], TextXAlignment: 'Left', ZIndex: 6 }),
           closeButton()],
       },
       { ClassName: 'Frame', Name: 'Body', props: { Position: [0, 0, 0, 50], Size: [1, 0, 1, -50], BackgroundTransparency: 1, ZIndex: 2 }, children: [{ ClassName: 'UIPadding', props: { PaddingTop: [0, 14], PaddingBottom: [0, 14], PaddingLeft: [0, 14], PaddingRight: [0, 14] } }] },
@@ -66,14 +111,14 @@ export function closeButton() {
   return {
     ClassName: 'TextButton', Name: 'CloseButton',
     props: { AnchorPoint: [1, 0.5], Position: [1, -8, 0.5, 0], Size: [0, 38, 0, 38], BackgroundColor3: '#FFFFFF', Text: '', AutoButtonColor: false, ZIndex: 6 },
-    children: [grad(PALETTE.red), stroke(3, 'Border', '#000000'), ...gloss(7), label('X', 'X', 24, { ZIndex: 8 })],
+    children: [grad(PALETTE.red), stroke(2.5, 'Border', '#000000'), { ClassName: 'UIStroke', Name: 'OrangeRim', props: { Thickness: 2, Color: '#FF9F1C', ApplyStrokeMode: 'Border', BorderStrokePosition: 'Inner', LineJoinMode: 'Miter', ZIndex: 2 } }, ...gloss(7, { reflex: false }), label('X', 'X', 24, { ZIndex: 8 })],
   };
 }
 
 export function itemCard(name = 'Espada', price = '1.2K', colors = PALETTE.blue) {
   return {
     ClassName: 'Frame', Name: 'ItemCard', props: { Size: [0, 150, 0, 180], BackgroundColor3: '#FFFFFF' },
-    children: [grad(colors), stroke(3), ...gloss(), studs(37, 0.55),
+    children: [grad(colors), stroke(2.5), innerRim(), ...gloss(), studs(37, 0.55),
       { ClassName: 'ImageLabel', Name: 'Icon', props: { AnchorPoint: [0.5, 0], Position: [0.5, 0, 0, 10], Size: [0.7, 0, 0.7, 0], SizeConstraint: 'RelativeXX', BackgroundTransparency: 1, Image: '', ScaleType: 'Fit', ZIndex: 4 } },
       label('ItemName', name, 20, { Position: [0, 0, 1, -72], Size: [1, 0, 0, 24] }),
       { ...studButton('BuyButton', PALETTE.lime, price, 0, 34, { AnchorPoint: [0.5, 1], Position: [0.5, 0, 1, -8], Size: [1, -18, 0, 34], ZIndex: 5 }) },
@@ -85,7 +130,7 @@ export function hudButton(text = 'SHOP', colors = PALETTE.orange) {
   return {
     ClassName: 'ImageButton', Name: text.charAt(0) + text.slice(1).toLowerCase() + 'Button',
     props: { Size: [0, 78, 0, 78], BackgroundColor3: '#FFFFFF', BackgroundTransparency: 0, Image: '', AutoButtonColor: false },
-    children: [grad(colors), stroke(3), ...gloss(), studs(37, 0.55),
+    children: [grad(colors), stroke(2.5), innerRim(), ...gloss(), studs(37, 0.55),
       { ClassName: 'ImageLabel', Name: 'Icon', props: { AnchorPoint: [0.5, 0.5], Position: [0.5, 0, 0.44, 0], Size: [0.72, 0, 0.72, 0], BackgroundTransparency: 1, ScaleType: 'Fit', ZIndex: 4 } },
       label('Label', text, 15, { AnchorPoint: [0.5, 1], Position: [0.5, 0, 1, 4], Size: [1, 8, 0, 20] }),
     ],
@@ -175,7 +220,7 @@ export const KIT = [
   { id: 'window', name: 'Ventana', make: () => studWindow('TIENDA', PALETTE.orange) },
   { id: 'window-blue', name: 'Ventana azul', make: () => studWindow('INVENTARIO', PALETTE.blue) },
   { id: 'btn-lime', name: 'Botón comprar', make: () => studButton('BuyButton', PALETTE.lime, 'COMPRAR') },
-  { id: 'btn-pink', name: 'Botón Robux', make: () => studButton('RobuxButton', PALETTE.pink, 'R$ 99') },
+  { id: 'btn-pink', name: 'Botón Robux', make: () => robuxButton('SALTAR', '49') },
   { id: 'btn-red', name: 'Botón cerrar', make: () => closeButton() },
   { id: 'btn-round', name: 'Botón redondeado', make: () => roundedButton() },
   { id: 'card', name: 'Tarjeta de item', make: () => itemCard() },
