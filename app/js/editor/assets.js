@@ -91,13 +91,72 @@ export class Assets {
     download(`${safeName(this.store.doc.name) || 'rbxui'}-imagenes.zip`, makeZip(files), 'application/zip');
   }
 
+  /** Imports many files (e.g. an icon pack folder), sequentially to keep memory low. */
+  async addFiles(files) {
+    const imgs = [...files].filter((f) => /^image\//.test(f.type) || /\.(png|jpe?g|webp|bmp|gif)$/i.test(f.name));
+    let n = 0;
+    for (const f of imgs) {
+      await this.addFile(f);
+      n++;
+    }
+    if (n > 1) toast(`${n} imágenes importadas`);
+    return n;
+  }
+
+  /** Reads dropped folders recursively (DataTransferItem.webkitGetAsEntry). */
+  async filesFromDrop(dt) {
+    const out = [];
+    const walkEntry = (entry) => new Promise((res) => {
+      if (entry.isFile) entry.file((f) => {
+        out.push(f);
+        res();
+      }, res);
+      else if (entry.isDirectory) {
+        const reader = entry.createReader();
+        const readAll = () => reader.readEntries(async (ents) => {
+          if (!ents.length) return res();
+          for (const e of ents) await walkEntry(e);
+          readAll();
+        }, res);
+        readAll();
+      } else res();
+    });
+    const entries = [...(dt.items || [])].map((i) => i.webkitGetAsEntry?.()).filter(Boolean);
+    if (entries.length) for (const e of entries) await walkEntry(e);
+    else out.push(...dt.files);
+    return out;
+  }
+
+  /** Bulk rbxassetid mapping: lines like "Coin = 123456" or "Coin,123456" or "Coin: rbxassetid://123". */
+  bulkIds(text) {
+    let n = 0;
+    const byName = new Map(this.list.map((a) => [a.name.toLowerCase(), a.id]));
+    for (const line of String(text).split(/\r?\n/)) {
+      const m = line.match(/^\s*(.+?)\s*[=:,;\t]\s*(?:rbxassetid:\/\/)?(\d{3,})\s*$/);
+      if (!m) continue;
+      const id = byName.get(m[1].toLowerCase().replace(/\.(png|jpe?g|webp|bmp)$/i, ''));
+      if (id) {
+        this.store.doc.assets[id].rbxId = m[2];
+        n++;
+      }
+    }
+    this.store.dirty = true;
+    this.store.emit({ doc: true, assets: true });
+    return n;
+  }
+
   // ---------- panel ----------
   renderPanel(host) {
     host.innerHTML = '';
     const input = h('input', { type: 'file', accept: 'image/png,image/jpeg,image/bmp,image/gif,image/webp', multiple: true, style: { display: 'none' } });
     input.addEventListener('change', async () => {
-      for (const f of input.files) await this.addFile(f);
+      await this.addFiles(input.files);
       input.value = '';
+    });
+    const dirInput = h('input', { type: 'file', multiple: true, webkitdirectory: true, style: { display: 'none' } });
+    dirInput.addEventListener('change', async () => {
+      await this.addFiles(dirInput.files);
+      dirInput.value = '';
     });
     const dz = h('div', { class: 'dropzone' }, 'Arrastra imágenes aquí o ', h('a', { href: '#', onclick: (e) => {
       e.preventDefault();
@@ -112,17 +171,31 @@ export class Assets {
       e.preventDefault();
       e.stopPropagation();
       dz.classList.remove('over');
-      for (const f of e.dataTransfer.files) if (f.type.startsWith('image/')) await this.addFile(f);
+      await this.addFiles(await this.filesFromDrop(e.dataTransfer));
     });
+    dz.append(h('div', { style: { marginTop: '6px' } }, h('a', { href: '#', onclick: (e) => {
+      e.preventDefault();
+      dirInput.click();
+    } }, 'Importar una carpeta entera (packs de iconos)')));
     const list = this.list;
     const missing = list.filter((a) => !a.rbxId).length;
     const zipBtn = h('button', { class: 'icon-btn', title: 'Descargar ZIP para subir a Roblox', html: icon('download') });
     zipBtn.addEventListener('click', () => this.downloadZip(false));
-    host.append(h('div', { class: 'section-title' }, `Imágenes (${list.length})`, h('div', { class: 'actions' }, zipBtn)), dz, input);
-    if (missing) host.append(h('div', { class: 'info-box', style: { margin: '0 10px 10px' } }, `${missing} imagen(es) sin rbxassetid. Súbelas a Roblox (Asset Manager › Bulk Import) y pega el ID en cada una para que se exporten.`));
+    const idsBtn = h('button', { class: 'icon-btn', title: 'Pegar muchos rbxassetid a la vez', html: icon('link') });
+    idsBtn.addEventListener('click', () => this.bulkDialog());
+    host.append(h('div', { class: 'section-title' }, `Imágenes (${list.length})`, h('div', { class: 'actions' }, idsBtn, zipBtn)), dz, input, dirInput);
+    if (missing) host.append(h('div', { class: 'info-box', style: { margin: '0 10px 10px' } }, `${missing} imagen(es) sin rbxassetid. Súbelas a Roblox (Asset Manager › Bulk Import) y pega los IDs (botón 🔗) para que se exporten.`));
+    const q = h('input', { placeholder: 'Buscar imágenes…', value: this.filter || '' });
+    q.addEventListener('keydown', (e) => e.stopPropagation());
+    q.addEventListener('input', () => {
+      this.filter = q.value.toLowerCase();
+      for (const el of grid.children) el.style.display = !this.filter || el.dataset.name.includes(this.filter) ? '' : 'none';
+    });
+    if (list.length > 6) host.append(h('div', { class: 'search' }, q));
     const grid = h('div', { class: 'asset-grid' });
     for (const a of list) {
-      const el = h('div', { class: 'asset', draggable: 'true', title: `${a.name} · ${a.width}×${a.height}` }, h('img', { src: a.url, alt: '' }), h('div', { class: 'tag ' + (a.rbxId ? 'ok' : 'no') }, a.rbxId ? '✓ ' + a.name : a.name));
+      const el = h('div', { class: 'asset', draggable: 'true', title: `${a.name} · ${a.width}×${a.height}`, dataset: { name: a.name.toLowerCase() } }, h('img', { src: a.url, alt: '', loading: 'lazy' }), h('div', { class: 'tag ' + (a.rbxId ? 'ok' : 'no') }, a.rbxId ? '✓ ' + a.name : a.name));
+      if (this.filter && !a.name.toLowerCase().includes(this.filter)) el.style.display = 'none';
       el.addEventListener('dragstart', (e) => {
         e.dataTransfer.setData('application/x-rbxui-asset', a.id);
         e.dataTransfer.effectAllowed = 'copy';
@@ -131,6 +204,18 @@ export class Assets {
       grid.append(el);
     }
     host.append(grid);
+  }
+
+  bulkDialog() {
+    const ta = h('textarea', { class: 'txt', style: { height: '220px', fontFamily: 'monospace' }, placeholder: 'Coin = 1234567890\nGem = rbxassetid://987654321\nStar, 555555555' });
+    ta.addEventListener('keydown', (e) => e.stopPropagation());
+    const missing = this.list.filter((a) => !a.rbxId).map((a) => a.name);
+    import('./ui.js').then(({ dialog }) => dialog('Pegar rbxassetid en bloque', h('div', { style: { display: 'grid', gap: '8px' } },
+      h('div', { class: 'hint' }, 'Una línea por imagen: nombre = id. El nombre es el de la imagen (sin .png). Así puedes asignar decenas de IDs de golpe tras subirlas en Studio (Asset Manager).'),
+      ta, missing.length ? h('div', { class: 'hint' }, `Pendientes: ${missing.slice(0, 30).join(', ')}${missing.length > 30 ? '…' : ''}`) : null), [
+      { label: 'Cancelar' },
+      { label: 'Aplicar', primary: true, action: () => toast(`${this.bulkIds(ta.value)} ID(s) asignados`) },
+    ]));
   }
 
   assetPopover(a, anchor) {

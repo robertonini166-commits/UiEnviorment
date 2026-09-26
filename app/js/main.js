@@ -531,7 +531,16 @@ class App {
       else this.insertImage(asset, [wx, wy]);
       return;
     }
-    for (const f of e.dataTransfer.files || []) {
+    const dropped = await this.assets.filesFromDrop(e.dataTransfer);
+    if (dropped.filter((f) => f.type.startsWith('image/')).length > 3) {
+      // a whole icon pack: import to Resources without cluttering the canvas
+      await this.assets.addFiles(dropped);
+      this.leftTab = 'assets';
+      document.querySelectorAll('#left-tabs button').forEach((b) => b.classList.toggle('on', b.textContent === 'Recursos'));
+      this.renderLeft();
+      return;
+    }
+    for (const f of dropped) {
       if (f.type.startsWith('image/')) {
         const id = await this.assets.addFile(f);
         this.insertImage(id, [wx, wy]);
@@ -557,9 +566,16 @@ class App {
   /** Image picker for an ImageLabel/Button (existing assets, upload, or rbxassetid). */
   pickImageFor(id, ids) {
     ids = ids || (id ? [id] : []);
-    const list = h('div', { class: 'asset-grid', style: { padding: '0', gridTemplateColumns: 'repeat(4, 1fr)' } });
+    const list = h('div', { class: 'asset-grid', style: { padding: '0', gridTemplateColumns: 'repeat(6, 1fr)', maxHeight: '50vh', overflow: 'auto' } });
+    const q = h('input', { class: 'txt', placeholder: 'Buscar por nombre…' });
+    q.addEventListener('keydown', (e) => e.stopPropagation());
+    q.addEventListener('input', () => {
+      const v = q.value.toLowerCase();
+      for (const el of list.children) el.style.display = el.title.toLowerCase().includes(v) ? '' : 'none';
+    });
+    setTimeout(() => q.focus(), 0);
     for (const a of this.assets.list) {
-      const el = h('div', { class: 'asset', title: a.name }, h('img', { src: a.url }));
+      const el = h('div', { class: 'asset', title: a.name }, h('img', { src: a.url, loading: 'lazy' }), h('div', { class: 'tag' }, a.name));
       el.addEventListener('click', () => {
         this.cmd.setProp(ids, 'Image', 'asset:' + a.id);
         d.close();
@@ -582,7 +598,7 @@ class App {
         d.close();
       }
     });
-    const d = dialog('Elegir imagen', h('div', { style: { display: 'grid', gap: '10px' } }, this.assets.list.length ? list : h('div', { class: 'hint' }, 'Aún no hay imágenes en el proyecto.'), h('div', { style: { display: 'flex', gap: '8px' } }, up, rid), h('div', { class: 'hint' }, 'Las imágenes de Roblox (rbxassetid) no se pueden previsualizar aquí: para verlas, sube también el PNG y pon su ID en el panel Recursos.')), [{ label: 'Cancelar' }], { width: '520px' });
+    const d = dialog('Elegir imagen', h('div', { style: { display: 'grid', gap: '10px' } }, this.assets.list.length > 8 ? q : null, this.assets.list.length ? list : h('div', { class: 'hint' }, 'Aún no hay imágenes en el proyecto.'), h('div', { style: { display: 'flex', gap: '8px' } }, up, rid), h('div', { class: 'hint' }, 'Las imágenes de Roblox (rbxassetid) no se pueden previsualizar aquí: para verlas, sube también el PNG y pon su ID en el panel Recursos.')), [{ label: 'Cancelar' }], { width: '520px' });
   }
 
   // ---------- files ----------
