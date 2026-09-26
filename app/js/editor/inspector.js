@@ -21,7 +21,8 @@ export class Inspector {
     this.collapsed = new Set(JSON.parse(localStorage.getItem('rbxui.collapsed') || '["all"]'));
     this.store.on((w) => {
       if (w.live) return this.refreshValues();
-      if (w.doc || w.selection || w.view) this.render();
+      const viewMatters = w.view && w.keys?.some((k) => k === 'unitMode' || k === 'showHidden');
+      if (w.doc || w.selection || viewMatters) this.render();
     });
   }
 

@@ -160,7 +160,7 @@ export class Store {
 
   setView(patch) {
     Object.assign(this.view, patch);
-    this.emit({ view: true });
+    this.emit({ view: true, keys: Object.keys(patch) });
   }
   setTool(tool) {
     this.tool = tool;

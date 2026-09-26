@@ -18,7 +18,8 @@ export class LayersPanel {
     this.drag = null;
     this.store.on((w) => {
       if (w.live) return;
-      if (w.doc || w.selection || w.hover) this.render();
+      if (w.doc || w.selection) this.render();
+      else if (w.hover) this.syncHover();
     });
   }
 
@@ -65,6 +66,12 @@ export class LayersPanel {
     this.host.append(tree);
     this.renderTree(tree);
     this.host.scrollTop = scrollTop;
+  }
+
+  syncHover() {
+    const id = this.store.hoverId;
+    for (const r of this.host.querySelectorAll('.row.hover-canvas')) if (r.dataset.id !== id) r.classList.remove('hover-canvas');
+    if (id) this.host.querySelector(`.row[data-id="${id}"]`)?.classList.add('hover-canvas');
   }
 
   renderTree(tree) {
