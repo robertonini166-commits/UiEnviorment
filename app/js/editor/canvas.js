@@ -308,6 +308,8 @@ export class Canvas {
       // layout visualization: padding + list gaps
       if (single && !isScreen && s.view.showLayoutGuides) out.push(...this.layoutGuides(polys[0][0], sp));
     }
+    // Alt: measure distances between selection and hovered object (Figma red lines)
+    if (this.altDown && !this.drag && sel.length && s.hoverId && !sel.includes(s.hoverId)) out.push(...this.measureLines(sel, s.hoverId));
     // snap guides
     for (const g of this.guides) {
       const [x1, y1] = this.toScreen(g[0], g[1]);
@@ -364,6 +366,37 @@ export class Canvas {
         }
       }
     }
+    return out;
+  }
+
+  measureLines(sel, otherId) {
+    const A = aabb(sel.map((id) => this.polyOf(id)).filter(Boolean).flat());
+    const op = this.polyOf(otherId);
+    if (!op) return [];
+    const B = aabb(op);
+    const out = [];
+    const line = (x1, y1, x2, y2, v) => {
+      const [a, b] = this.toScreen(x1, y1), [c, d] = this.toScreen(x2, y2);
+      out.push(`<line x1="${a}" y1="${b}" x2="${c}" y2="${d}" stroke="#f24822" stroke-width="1"/>`);
+      const t = String(Math.round(v));
+      const w = t.length * 6.4 + 8, mx = (a + c) / 2, my = (b + d) / 2;
+      out.push(`<g transform="translate(${mx - w / 2},${my - 8})"><rect width="${w}" height="16" rx="3" fill="#f24822"/><text x="${w / 2}" y="11.5" fill="#fff" font-size="10.5" text-anchor="middle" font-family="Inter,system-ui,sans-serif">${t}</text></g>`);
+    };
+    const inside = A.x >= B.x && A.y >= B.y && A.x + A.w <= B.x + B.w && A.y + A.h <= B.y + B.h;
+    const cy = A.y + A.h / 2, cx = A.x + A.w / 2;
+    if (inside) {
+      line(B.x, cy, A.x, cy, A.x - B.x);
+      line(A.x + A.w, cy, B.x + B.w, cy, B.x + B.w - A.x - A.w);
+      line(cx, B.y, cx, A.y, A.y - B.y);
+      line(cx, A.y + A.h, cx, B.y + B.h, B.y + B.h - A.y - A.h);
+    } else {
+      if (B.x >= A.x + A.w) line(A.x + A.w, cy, B.x, cy, B.x - A.x - A.w);
+      else if (B.x + B.w <= A.x) line(B.x + B.w, cy, A.x, cy, A.x - B.x - B.w);
+      if (B.y >= A.y + A.h) line(cx, A.y + A.h, cx, B.y, B.y - A.y - A.h);
+      else if (B.y + B.h <= A.y) line(cx, B.y + B.h, cx, A.y, A.y - B.y - B.h);
+    }
+    const [bx1, by1] = this.toScreen(B.x, B.y), [bx2, by2] = this.toScreen(B.x + B.w, B.y + B.h);
+    out.push(`<rect x="${bx1}" y="${by1}" width="${bx2 - bx1}" height="${by2 - by1}" fill="none" stroke="#f24822" stroke-dasharray="3 3"/>`);
     return out;
   }
 
@@ -494,13 +527,24 @@ export class Canvas {
       }
     });
     window.addEventListener('keydown', (e) => {
+      if (e.key === 'Alt' && !this.altDown) {
+        this.altDown = true;
+        this.renderOverlay();
+      }
       if (e.code === 'Space' && !isTyping(e)) {
         if (!this.spaceDown) document.body.classList.add('space-pan');
         this.spaceDown = true;
         e.preventDefault();
       }
     });
+    window.addEventListener('blur', () => {
+      this.altDown = false;
+    });
     window.addEventListener('keyup', (e) => {
+      if (e.key === 'Alt') {
+        this.altDown = false;
+        this.renderOverlay();
+      }
       if (e.code === 'Space') {
         this.spaceDown = false;
         document.body.classList.remove('space-pan');

@@ -36,9 +36,10 @@ export function buildRuntime(screen) {
   walk(screen, (n) => {
     if (n.buttonFx) fx.push(`\t{ path = ${luaPath(pathTo(screen, n.id))}, hover = ${n.buttonFx.hover ?? 1.06}, press = ${n.buttonFx.press ?? 0.9} },`);
     for (const it of n.interactions || []) {
-      const tp = it.target ? pathTo(screen, it.target) : null;
-      if (it.target && !tp.length) continue;
-      actions.push(`\t{ path = ${luaPath(pathTo(screen, n.id))}, trigger = ${luaString(it.trigger || 'click')}, action = ${luaString(it.action || 'toggle')}, target = ${tp ? luaPath(tp) : 'nil'}, anim = ${luaString(it.animation || 'pop')}, time = ${Number(it.duration ?? 0.22)}, blur = ${it.blur ? 'true' : 'false'}, exclusive = ${it.exclusive === false ? 'false' : 'true'} },`);
+      const tp = it.target && it.action !== 'navigate' ? pathTo(screen, it.target) : null;
+      if (it.target && tp && !tp.length) continue;
+      if (it.action === 'navigate' && !it.screen) continue;
+      actions.push(`\t{ path = ${luaPath(pathTo(screen, n.id))}, trigger = ${luaString(it.trigger || 'click')}, action = ${luaString(it.action || 'toggle')}, target = ${tp ? luaPath(tp) : 'nil'}, anim = ${luaString(it.animation || 'pop')}, time = ${Number(it.duration ?? 0.22)}, blur = ${it.blur ? 'true' : 'false'}, exclusive = ${it.exclusive === false ? 'false' : 'true'}, key = ${luaString(it.key || 'E')}, delay = ${Number(it.delay ?? 3)}, screen = ${it.screen ? luaString(it.screen) : 'nil'} },`);
     }
   });
   return `--!strict
@@ -48,6 +49,7 @@ export function buildRuntime(screen) {
 
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
+local UserInputService = game:GetService("UserInputService")
 local gui = script.Parent
 
 local BUTTON_FX = {
@@ -187,6 +189,16 @@ local function hide(win: GuiObject, anim: string, t: number)
 end
 
 local function run(a)
+	if a.action == "navigate" then
+		local other = gui.Parent and gui.Parent:FindFirstChild(a.screen)
+		if other and other:IsA("ScreenGui") then
+			other.Enabled = true
+			gui.Enabled = false
+		else
+			warn("[RbxUI] No se encontró la pantalla " .. tostring(a.screen))
+		end
+		return
+	end
 	local target = a.target and find(a.target) :: GuiObject?
 	if a.action == "closeParent" then
 		-- close the nearest ancestor window that this runtime opened (or any visible Frame ancestor)
@@ -222,6 +234,13 @@ for _, a in ACTIONS do
 			(obj :: GuiButton).Activated:Connect(function() run(a) end)
 		elseif a.trigger == "hover" then
 			(obj :: GuiObject).MouseEnter:Connect(function() run(a) end)
+		elseif a.trigger == "key" then
+			local code = (Enum.KeyCode :: any)[a.key]
+			UserInputService.InputBegan:Connect(function(input, processed)
+				if not processed and input.KeyCode == code and gui.Enabled then run(a) end
+			end)
+		elseif a.trigger == "delay" then
+			task.delay(a.delay, function() run(a) end)
 		end
 	end)
 end

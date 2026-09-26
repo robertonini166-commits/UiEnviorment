@@ -11,6 +11,7 @@ import { openExportDialog } from './editor/export-ui.js';
 import { Prototype } from './editor/prototype.js';
 import { Components } from './editor/components.js';
 import { CodePanel } from './editor/codepanel.js';
+import { Styles } from './editor/styles.js';
 import { importRbxmx } from './export/import-rbxmx.js';
 import * as geometry from './editor/geometry.js';
 import * as model from './core/model.js';
@@ -41,6 +42,7 @@ class App {
     this.canvas = new Canvas(this);
     this.components = new Components(this);
     this.prototype = new Prototype(this);
+    this.styles = new Styles(this);
     this.leftTab = 'layers';
     this.rightTab = 'design';
     this.layers = new LayersPanel(this, h('div'));
@@ -52,7 +54,7 @@ class App {
     this.store.on((w) => {
       if (w.tool) this.renderToolbar();
       if (w.view || w.doc) this.renderZoom();
-      if (w.assets && this.leftTab === 'assets') this.renderLeft();
+      if ((w.assets || (w.doc && !w.live && !w.componentsSynced)) && this.leftTab === 'assets') this.renderLeft();
       if (w.doc && !w.live) document.getElementById('doc-name').value = this.store.doc.name;
       if (w.replaced) this.renderLeft();
     });
@@ -116,6 +118,9 @@ class App {
       const comp = h('div');
       body.append(comp);
       this.components.renderPanel(comp);
+      const st = h('div');
+      body.append(st);
+      this.styles.renderPanel(st);
     } else {
       body.append(this.kitPanel());
     }
@@ -306,6 +311,7 @@ class App {
         { label: (s.view.snap ? '✓ ' : '') + 'Ajuste inteligente', action: () => s.setView({ snap: !s.view.snap }) },
         { label: (s.doc.settings?.robloxTextMetrics !== false ? '✓ ' : '') + 'Tamaño de texto como Roblox', action: () => this.toggleMetrics() },
       ] },
+      { label: 'Historial de cambios…', action: () => this.historyDialog() },
       { label: 'Fuentes de Roblox…', action: () => this.fontsDialog() },
       { label: 'Ayuda', submenu: [
         { label: 'Atajos de teclado', shortcut: 'Ctrl /', action: () => this.shortcutsDialog() },
@@ -360,6 +366,7 @@ class App {
       ...(isScreen ? [{ label: 'Exportar esta pantalla…', action: () => openExportDialog(this) }] : this.objectMenuItems()),
       { sep: true },
       { label: 'Copiar como Luau', action: () => this.code.copySelectionLuau() },
+      ...(isScreen ? [] : [{ label: 'Exportar selección como PNG', action: () => this.exportSelectionPng() }]),
       { label: 'Copiar como JSON', action: () => this.cmd.copy() },
     ] : [
       { label: 'Pegar', shortcut: 'Ctrl V', action: () => this.cmd.paste() },
@@ -715,6 +722,36 @@ class App {
     setTimeout(() => inp.select(), 0);
   }
 
+  historyDialog() {
+    const s = this.store;
+    const list = h('div', { style: { maxHeight: '60vh', overflow: 'auto' } });
+    const render = () => {
+      list.innerHTML = '';
+      const items = [...s.past.map((p, i) => ({ label: p.label, i, kind: 'past' })), { label: 'Estado actual', kind: 'now' }, ...[...s.future].reverse().map((f, i) => ({ label: f.label, i, kind: 'future' }))];
+      items.forEach((it, idx) => {
+        const row = h('div', { class: 'row' + (it.kind === 'now' ? ' sel' : ''), style: { paddingLeft: '8px', opacity: it.kind === 'future' ? 0.5 : 1 } }, h('span', { class: 'nm' }, `${idx + 1}. ${it.label}`));
+        row.addEventListener('click', () => {
+          const nowIdx = s.past.length;
+          const steps = idx - nowIdx;
+          for (let k = 0; k < Math.abs(steps); k++) steps < 0 ? s.undo() : s.redo();
+          render();
+        });
+        list.append(row);
+      });
+    };
+    render();
+    dialog('Historial de cambios', h('div', {}, h('div', { class: 'hint', style: { marginBottom: '6px' } }, 'Haz clic en un paso para volver a él (se puede rehacer).'), list), [{ label: 'Cerrar' }], { width: '420px' });
+  }
+
+  async exportSelectionPng() {
+    const n = this.store.selectedNodes()[0];
+    if (!n) return;
+    const { renderNodePng } = await import('./editor/snapshot.js');
+    const blob = await renderNodePng(this, n.id, 2);
+    if (blob) download(`${n.Name}.png`, blob, 'image/png');
+    toast('PNG @2x exportado. Súbelo a Roblox si quieres usarlo como imagen.');
+  }
+
   shortcutsDialog() {
     const rows = [
       ['V / H', 'Mover / Mano'], ['F · R · O', 'Frame · Rectángulo · Círculo'], ['T · B · I · S', 'Texto · Botón · Imagen · Scroll'],
@@ -780,5 +817,10 @@ async function boot() {
 }
 
 boot();
+
+// installable + offline (only on https or localhost, never inside automated tests)
+if ('serviceWorker' in navigator && !navigator.webdriver && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
 
 export { App, canParent, isGuiObject, popover };

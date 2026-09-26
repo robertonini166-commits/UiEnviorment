@@ -5,7 +5,7 @@ import { getProps, ENUMS, isText, isImage, isGuiObject, isModifier, isLayout, is
 import { FONT_FAMILIES, availableWeights, isApproximated, ensureFont, cssFamily } from '../core/fonts.js';
 import { DEVICES } from '../core/model.js';
 import { evalColorSequence, evalNumberSequence, rgba, round, clamp, deepEqual } from '../core/types.js';
-import { h, numInput, textInput, select, checkbox, seg, field, colorField, popover, menu, toast } from './ui.js';
+import { h, numInput, textInput, select, checkbox, seg, field, colorField, popover, menu, toast, colorPicker } from './ui.js';
 import { icon, classIcon } from './icons.js';
 import { textLayoutFor } from '../core/paint.js';
 
@@ -711,7 +711,41 @@ export class Inspector {
     const one = nodes.length === 1 ? nodes[0] : null;
     const body = h('div');
     const txt = this.common('Text', nodes);
-    if (one) body.append(h('div', { class: 'field col' }, textInput(one.props.Text, (v) => this.set('Text', v), { multiline: true, placeholder: 'Texto…' })));
+    if (one) {
+      const ta = textInput(one.props.Text, (v) => this.set('Text', v), { multiline: true, placeholder: 'Texto…' });
+      const wrapSel = (open, close) => {
+        const a = ta.selectionStart, b = ta.selectionEnd;
+        const v = ta.value;
+        if (a === b) return toast('Selecciona parte del texto primero');
+        ta.value = v.slice(0, a) + open + v.slice(a, b) + close + v.slice(b);
+        this.store.edit('Rich text', () => {
+          one.props.Text = ta.value;
+          one.props.RichText = true;
+        });
+      };
+      const tb = h('div', { class: 'rt-toolbar' });
+      const btn = (label, title, fn, style = {}) => {
+        const b = h('button', { class: 'btn small ghost', title, style }, label);
+        b.addEventListener('mousedown', (e) => e.preventDefault());
+        b.addEventListener('click', fn);
+        tb.append(b);
+      };
+      btn('B', 'Negrita <b>', () => wrapSel('<b>', '</b>'), { fontWeight: 800 });
+      btn('I', 'Cursiva <i>', () => wrapSel('<i>', '</i>'), { fontStyle: 'italic' });
+      btn('U', 'Subrayado <u>', () => wrapSel('<u>', '</u>'), { textDecoration: 'underline' });
+      btn('S', 'Tachado <s>', () => wrapSel('<s>', '</s>'), { textDecoration: 'line-through' });
+      btn('AA', 'Mayúsculas <uc>', () => wrapSel('<uc>', '</uc>'));
+      btn('●', 'Color <font color>', (e) => {
+        popover(colorPickerFor((c) => wrapSel(`<font color="${c}">`, '</font>'), this.store.doc.swatches), e.currentTarget, { side: 'left' });
+      }, { color: '#FFD93D' });
+      btn('◯', 'Contorno <stroke>', () => wrapSel('<stroke color="#000000" thickness="2">', '</stroke>'));
+      btn('±', 'Tamaño <font size>', () => {
+        const sz = prompt('Tamaño (px)', String(Math.round((one.props.TextSize || 20) * 1.3)));
+        if (sz) wrapSel(`<font size="${parseInt(sz, 10)}">`, '</font>');
+      });
+      body.append(tb, h('div', { class: 'field col' }, ta));
+      if (one.props.RichText) body.append(h('div', { class: 'hint', style: { marginTop: '-2px', marginBottom: '6px' } }, 'RichText activo: las etiquetas se aplican en Roblox exactamente igual.'));
+    }
     else body.append(h('div', { class: 'hint' }, txt.mixed ? 'Textos distintos' : ''));
     if (nodes.every((n) => n.ClassName === 'TextBox')) {
       const ph = this.common('PlaceholderText', nodes);
@@ -982,6 +1016,17 @@ export class Inspector {
     }
     return this.section('all', 'Todas las propiedades (Roblox)', h('div', {}, h('div', { class: 'hint', style: { marginBottom: '6px' } }, 'Lista completa, igual que la ventana Properties de Studio.'), table));
   }
+}
+
+function colorPickerFor(onPick, swatches) {
+  let last = '#FFD93D';
+  const cp = colorPicker({ color: last, swatches, onChange: (c) => (last = c) });
+  const ok = h('button', { class: 'btn small primary', style: { margin: '0 10px 10px' } }, 'Aplicar color');
+  ok.addEventListener('click', () => {
+    onPick(last);
+    ok.closest('.popover')?.close?.();
+  });
+  return h('div', {}, cp, ok);
 }
 
 function shade(hex, amt) {

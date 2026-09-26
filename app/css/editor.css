@@ -217,3 +217,5 @@ pre.code { background: #1a1a1a; border-radius: 5px; padding: 8px; overflow: auto
   #app { grid-template-columns: 200px 1fr 250px; }
   .tb-center { display: none; }
 }
+.rt-toolbar { display: flex; gap: 2px; margin-bottom: 4px; flex-wrap: wrap; }
+.rt-toolbar .btn { min-width: 26px; padding: 2px 6px; }

@@ -8,7 +8,9 @@ import { h, select, checkbox, numInput } from './ui.js';
 import { icon } from './icons.js';
 import { chainIds } from './geometry.js';
 
-const ACTIONS = [['toggle', 'Abrir/cerrar (toggle)'], ['open', 'Abrir'], ['close', 'Cerrar'], ['closeParent', 'Cerrar su ventana']];
+const ACTIONS = [['toggle', 'Abrir/cerrar (toggle)'], ['open', 'Abrir'], ['close', 'Cerrar'], ['closeParent', 'Cerrar su ventana'], ['navigate', 'Ir a otra pantalla']];
+const TRIGGERS = [['click', 'Al hacer clic'], ['hover', 'Al pasar el ratón'], ['key', 'Al pulsar una tecla'], ['delay', 'Tras X segundos']];
+const KEYS = ['E', 'F', 'G', 'Q', 'R', 'T', 'B', 'M', 'I', 'P', 'Tab', 'One', 'Two', 'Three', 'Four', 'Five', 'Escape', 'Return', 'Space', 'LeftShift', 'ButtonX', 'ButtonY', 'ButtonB'];
 const ANIMS = [['pop', 'Pop (escala)'], ['fade', 'Fundido'], ['slideUp', 'Deslizar desde abajo'], ['slideDown', 'Deslizar desde arriba'], ['slideLeft', 'Deslizar desde la derecha'], ['slideRight', 'Deslizar desde la izquierda'], ['none', 'Sin animación']];
 
 export class Prototype {
@@ -105,8 +107,16 @@ export class Prototype {
     rm.addEventListener('click', () => s.edit('Quitar interacción', () => n.interactions.splice(i, 1)));
     const card = h('div', { class: 'mod-card' }, h('div', { class: 'mod-hd' }, h('span', { class: 'nm' }, `Interacción ${i + 1}`), rm),
       h('div', { class: 'grid2' },
-        select([['click', 'Al hacer clic'], ['hover', 'Al pasar el ratón']], it.trigger, (v) => upd({ trigger: v })),
+        select(TRIGGERS, it.trigger, (v) => upd({ trigger: v })),
         select(ACTIONS, it.action, (v) => upd({ action: v }))));
+    if (it.trigger === 'key') card.append(h('div', { class: 'field', style: { marginTop: '6px' } }, h('label', {}, 'Tecla'), select(KEYS.map((k) => [k, k]), it.key || 'E', (v) => upd({ key: v }))));
+    if (it.trigger === 'delay') card.append(h('div', { class: 'field', style: { marginTop: '6px' } }, h('label', {}, 'Segundos'), numInput({ value: it.delay ?? 3, step: 0.5, decimals: 2, min: 0, onChange: (v, f) => f && upd({ delay: v }) })));
+    if (it.action === 'navigate') {
+      const screens = s.doc.screens.filter((x) => !x.design?.componentsPage && x.id !== scr.id);
+      card.append(h('div', { class: 'field', style: { marginTop: '6px' } }, h('label', {}, 'Pantalla'), select([['', '— elige —'], ...screens.map((x) => [x.Name, x.Name])], it.screen || '', (v) => upd({ screen: v || null }))));
+      card.append(h('div', { class: 'hint' }, 'Desactiva este ScreenGui y activa el otro (Enabled). Exporta ambas pantallas.'));
+      return card;
+    }
     if (it.action !== 'closeParent') {
       const pick = h('button', { class: 'icon-btn', title: 'Elegir en el lienzo', html: icon('target') });
       pick.addEventListener('click', () => this.pickTarget((id) => upd({ target: id })));
@@ -233,6 +243,15 @@ export class Prototype {
       busy.delete(id);
     };
     const run = (src, a) => {
+      if (a.action === 'navigate') {
+        const target = this.store.doc.screens.find((x) => x.Name === a.screen);
+        if (target) {
+          exit();
+          this.store.activeScreenId = target.id;
+          this.play();
+        }
+        return;
+      }
       if (a.action === 'closeParent') {
         let p = this.parentNode(screen, src.id);
         while (p && p !== screen) {
@@ -302,17 +321,32 @@ export class Prototype {
       r.render(screen);
       if (isButton(n.ClassName)) for (const a of n.interactions || []) if (a.trigger !== 'hover') run(n, a);
     });
+    const timers = [];
     const exit = () => {
       ro.disconnect();
       back.remove();
+      timers.forEach(clearTimeout);
       window.removeEventListener('keydown', key, true);
     };
+    const keyName = (e) => (e.key.length === 1 ? e.key.toUpperCase() : { Enter: 'Return', ' ': 'Space', Shift: 'LeftShift' }[e.key] || e.key);
+    const digit = { 1: 'One', 2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five' };
     const key = (e) => {
-      if (e.key === 'Escape') {
+      const kn = digit[e.key] || keyName(e);
+      let handled = false;
+      walk(screen, (n) => {
+        for (const a of n.interactions || []) if (a.trigger === 'key' && (a.key || 'E') === kn) {
+          run(n, a);
+          handled = true;
+        }
+      });
+      if (e.key === 'Escape' && !handled) {
         e.stopPropagation();
         exit();
       }
     };
+    walk(screen, (n) => {
+      for (const a of n.interactions || []) if (a.trigger === 'delay') timers.push(setTimeout(() => run(n, a), (a.delay ?? 3) * 1000));
+    });
     window.addEventListener('keydown', key, true);
     close.addEventListener('click', exit);
     reset.addEventListener('click', () => {

@@ -1,0 +1,11 @@
+{
+  "name": "RbxUI Studio",
+  "short_name": "RbxUI",
+  "description": "Editor tipo Figma para interfaces de Roblox con exportación directa a Roblox Studio.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#1e1e1e",
+  "theme_color": "#2c2c2c",
+  "icons": [{ "src": "app/img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

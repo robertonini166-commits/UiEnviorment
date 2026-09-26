@@ -439,6 +439,7 @@ export class Commands {
         if (prop === 'Name') n.Name = value;
         else if (getProps(n.ClassName)[prop]) {
           n.props[prop] = typeof value === 'function' ? value(n.props[prop], n) : value;
+          this.app.styles?.onManualEdit(n, prop);
           if (n.ClassName === 'UICorner' && prop === 'CornerRadius') {
             for (const k of ['TopLeftRadius', 'TopRightRadius', 'BottomRightRadius', 'BottomLeftRadius']) n.props[k] = [...n.props.CornerRadius];
           }

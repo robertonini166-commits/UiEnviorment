@@ -167,6 +167,7 @@ export function normalizeDocument(input) {
   doc.assets = src.assets || {};
   doc.components = {};
   if (src.swatches) doc.swatches = src.swatches;
+  if (src.styles) doc.styles = src.styles;
   if (src.settings) Object.assign(doc.settings, src.settings);
   const seen = new Set();
 

@@ -18,7 +18,7 @@ async function toDataUrl(url) {
   return data;
 }
 
-export async function renderScreenPng(app, scr, scale = 1) {
+export async function renderScreenPng(app, scr, scale = 1, transparent = false) {
   const host = document.createElement('div');
   Object.assign(host.style, { position: 'fixed', left: '-100000px', top: '0' });
   document.body.append(host);
@@ -43,7 +43,7 @@ export async function renderScreenPng(app, scr, scale = 1) {
   }
   void FONT_FAMILIES;
   const W = scr.design.width, H = scr.design.height;
-  const bg = scr.design.background || '#3A6EA5';
+  const bg = transparent ? 'transparent' : scr.design.background || '#3A6EA5';
   const html = new XMLSerializer().serializeToString(r.root);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W * scale}" height="${H * scale}" viewBox="0 0 ${W} ${H}"><foreignObject width="${W}" height="${H}"><div xmlns="http://www.w3.org/1999/xhtml" style="width:${W}px;height:${H}px;background:${bg}"><style>${css}</style>${html}</div></foreignObject></svg>`;
   r.destroy();
@@ -56,4 +56,21 @@ export async function renderScreenPng(app, scr, scale = 1) {
   c.height = H * scale;
   c.getContext('2d').drawImage(img, 0, 0);
   return await new Promise((res) => c.toBlob(res, 'image/png'));
+}
+
+/** PNG of a single node (and its children), transparent background, at `scale`. */
+export async function renderNodePng(app, id, scale = 2) {
+  const s = app.store;
+  const node = s.get(id);
+  const scr = s.screenOf(id);
+  const b = app.cmd.boxOf(id);
+  if (!node || !b) return null;
+  const pad = 16; // room for strokes/shadows
+  const clone = JSON.parse(JSON.stringify(node));
+  clone.props.AnchorPoint = [0, 0];
+  clone.props.Position = [0, pad, 0, pad];
+  clone.props.Size = [0, Math.round(b.w), 0, Math.round(b.h)];
+  clone.props.Rotation = 0;
+  const tmp = { id: 'tmp-screen', ClassName: 'ScreenGui', Name: 'tmp', props: { ...scr.props, IgnoreGuiInset: true, ScreenInsets: 'None' }, children: [clone], design: { width: Math.ceil(b.w + pad * 2), height: Math.ceil(b.h + pad * 2), background: 'transparent' } };
+  return renderScreenPng(app, tmp, scale, true);
 }
