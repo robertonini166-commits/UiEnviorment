@@ -94,8 +94,9 @@ Leyenda: ✅ hecho · 🟡 adaptado o parcial · ❌ no hecho (ver "Cómo puedes
 |---|---|---|
 | Componentes, instancias y overrides | ✅ | Ctrl+Alt+K. El maestro vive en la página "Componentes" (no se exporta) |
 | Restablecer o desvincular instancia | ✅ | |
-| Variantes y propiedades de componente | ❌ | Ver "Cómo puedes ayudar" |
-| Intercambiar instancia (swap) | ❌ | |
+| Variantes | 🟡 | Maestros llamados `Set/Variante` (p. ej. `Botón/Primario`) se agrupan y la instancia cambia de variante desde el inspector |
+| Intercambiar instancia (swap) | ✅ | Mantiene posición, AnchorPoint, orden, etc. |
+| Propiedades de componente (booleanas, texto, swap anidado) | ❌ | Ver "Cómo puedes ayudar" |
 | Estilos de color y de texto enlazados | ✅ | Panel Recursos |
 | Variables y modos (tokens, tema claro/oscuro) | ❌ | |
 | Librerías de equipo | ❌ | Necesita servidor |
@@ -149,8 +150,9 @@ Leyenda: ✅ hecho · 🟡 adaptado o parcial · ❌ no hecho (ver "Cómo puedes
    Roman Antique). No son libres, así que la vista previa usa una fuente parecida. Puedes cargarlas desde tu
    Studio (Menú › Fuentes de Roblox) o pasármelas para que las incluya si la licencia lo permite (la de Builder
    permite usarla para crear contenido de Roblox).
-6. **Variantes, propiedades de componente y swap de instancias.** Es lo siguiente más útil de Figma. Me falta
-   decidir cómo exportarlo a Roblox (¿un ModuleScript que cambia el estado?). Dime cómo lo usarías.
+6. **Propiedades de componente** (booleanas o de texto, como en Figma). Las variantes básicas y el swap ya están.
+   Me falta decidir si en Roblox deberían exportarse como atributos y un script que cambie el estado en tiempo
+   real (p. ej. botón bloqueado/desbloqueado). Dime cómo lo usarías en tu juego.
 7. **Colaboración en tiempo real, comentarios y compartir.** Necesita un servidor con cuentas (p. ej. Supabase o
    Firebase). Si quieres lanzarlo como servicio, habría que decidir hosting y cuentas.
 8. **Publicar la web.** El workflow de GitHub Pages está listo (`.github/workflows/pages.yml`). Tienes que

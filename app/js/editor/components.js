@@ -104,7 +104,7 @@ export class Components {
       pairUp(inst, master);
       for (const [a, m] of pairs) a.editor = Object.assign({}, a.editor, { masterId: m.id, isComponent: undefined, componentId: undefined });
       inst.editor.componentId = cid;
-      inst.Name = uniqueName(parent, master.Name);
+      inst.Name = uniqueName(parent, master.Name.split('/').pop().replace(/\s+/g, '') || 'Instance');
       inst.props.AnchorPoint = [0.5, 0.5];
       inst.props.Position = [0.5, 0, 0.5, 0];
       parent.children.push(inst);
@@ -173,6 +173,34 @@ export class Components {
     inst.editor = fresh.editor;
   }
 
+  /** Figma "swap instance": rebuild this instance from another component, keeping placement. */
+  swap(id, cid) {
+    const inst = this.store.get(id);
+    const master = this.masterOf(cid);
+    if (!inst || !master) return;
+    this.store.edit('Intercambiar instancia', () => {
+      const keep = {};
+      for (const k of ROOT_PLACEMENT) if (k in inst.props) keep[k] = deepClone(inst.props[k]);
+      const size = deepClone(inst.props.Size);
+      inst.editor.componentId = cid;
+      this.rebuild(inst, master, null, true);
+      Object.assign(inst.props, keep);
+      // keep the instance size only when both variants had the same size (variants of one set)
+      if (this.setOf(cid) && size) inst.props.Size = size;
+    });
+  }
+
+  /** "Set" of a component = text before the last "/" in its name (Button/Primary → Button). */
+  setOf(cid) {
+    const n = this.doc.components?.[cid]?.name || '';
+    return n.includes('/') ? n.slice(0, n.lastIndexOf('/')) : null;
+  }
+
+  variantsOf(cid) {
+    const set = this.setOf(cid);
+    return Object.values(this.doc.components || {}).filter((c) => this.store.get(c.masterId) && (set ? this.setOf(c.id) === set : true));
+  }
+
   resetInstance(id) {
     const inst = this.store.get(id);
     const master = this.masterOf(inst?.editor?.componentId);
@@ -203,7 +231,7 @@ export class Components {
     const comps = Object.values(this.doc.components || {}).filter((c) => this.store.get(c.masterId));
     host.append(h('div', { class: 'section-title' }, `Componentes (${comps.length})`));
     if (!comps.length) {
-      host.append(h('div', { class: 'hint', style: { padding: '0 12px 12px' } }, 'Selecciona algo y pulsa Ctrl+Alt+K para convertirlo en componente reutilizable. Al editar el maestro se actualizan todas sus copias.'));
+      host.append(h('div', { class: 'hint', style: { padding: '0 12px 12px' } }, 'Selecciona algo y pulsa Ctrl+Alt+K para convertirlo en componente reutilizable. Al editar el maestro se actualizan todas sus copias. Nombra los maestros "Botón/Primario", "Botón/Secundario"… para agruparlos como variantes.'));
       return;
     }
     for (const c of comps) {

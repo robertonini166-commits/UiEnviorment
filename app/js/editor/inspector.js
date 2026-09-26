@@ -202,6 +202,12 @@ export class Inspector {
       det.addEventListener('click', () => this.app.components?.detach(n.id));
       row.append(go, reset, det);
       body.append(h('div', { class: 'hint' }, `Componente: ${comp?.name || '¿eliminado?'}`), row);
+      const comps = this.app.components.variantsOf(n.editor.componentId);
+      if (comps.length > 1) {
+        const set = this.app.components.setOf(n.editor.componentId);
+        body.append(h('div', { class: 'field', style: { marginTop: '6px' } }, h('label', {}, set ? 'Variante' : 'Intercambiar'),
+          select(comps.map((c) => [c.id, set ? c.name.slice(set.length + 1) : c.name]), n.editor.componentId, (v) => this.app.components.swap(n.id, v))));
+      }
     }
     return this.section('header', 'Objeto', body, { collapsible: false });
   }
