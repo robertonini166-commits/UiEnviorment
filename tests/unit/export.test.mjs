@@ -74,3 +74,18 @@ test('rbxmx round trip (export -> import -> export) is lossless', async () => {
   const strip = (x) => x.replace(/ referent="[^"]*"/g, '');
   assert.equal(strip(b), strip(a));
 });
+
+test('every screen template normalizes, lints clean and exports', async () => {
+  const { SCREEN_TEMPLATES } = await import('../../app/js/editor/screen-templates.js');
+  const { lintDocument } = await import('../../app/js/core/lint.js');
+  for (const t of SCREEN_TEMPLATES) {
+    const { doc, warnings } = normalizeDocument({ screens: [t.make()] });
+    assert.deepEqual(warnings, [], t.id);
+    assert.deepEqual(lintDocument(doc).filter((l) => l.level === 'error'), [], t.id);
+    const { xml } = exportRbxmx(doc);
+    if (existsSync(rbxcheck)) {
+      writeFileSync(`out/tpl-${t.id}.rbxmx`, xml);
+      assert.match(execFileSync(rbxcheck, [`out/tpl-${t.id}.rbxmx`], { encoding: 'utf8' }), /OK/);
+    }
+  }
+});

@@ -7,6 +7,7 @@ import { LayersPanel } from './editor/layers.js';
 import { Inspector } from './editor/inspector.js';
 import { Assets } from './editor/assets.js';
 import { KIT, ensureKitAssets, bindKitAssets } from './editor/templates.js';
+import { SCREEN_TEMPLATES } from './editor/screen-templates.js';
 import { openExportDialog } from './editor/export-ui.js';
 import { Prototype } from './editor/prototype.js';
 import { Components } from './editor/components.js';
@@ -186,9 +187,37 @@ class App {
     this.canvas.zoomAt(z, r.width / 2, r.height / 2);
   }
 
+  async addScreenFromTemplate(t) {
+    await ensureKitAssets(this);
+    const raw = t.make();
+    const { doc } = normalizeDocument({ screens: [raw] });
+    const scr = doc.screens[0];
+    this.store.edit('Pantalla desde plantilla', (d) => {
+      const last = d.screens.filter((x) => !x.design?.componentsPage).pop();
+      scr.design.x = last ? last.design.x + last.design.width + 200 : 0;
+      scr.design.y = last ? last.design.y : 0;
+      scr.Name = model.uniqueName({ children: d.screens }, scr.Name);
+      d.screens.push(scr);
+    });
+    this.store.activeScreenId = scr.id;
+    this.store.select([]);
+    this.canvas.zoomToScreen(scr);
+    toast(`Pantalla "${t.name}" añadida`);
+  }
+
   kitPanel() {
     const wrap = h('div');
-    wrap.append(h('div', { class: 'section-title' }, 'Kit Stud Style'), h('div', { class: 'hint', style: { padding: '0 12px 8px' } }, 'Piezas listas en estilo simulador. Arrástralas al lienzo o haz clic para insertarlas. Todo son instancias de Roblox editables.'));
+    wrap.append(h('div', { class: 'section-title' }, 'Pantallas completas'));
+    const tgrid = h('div', { class: 'kit-grid' });
+    for (const t of SCREEN_TEMPLATES) {
+      const thumb = h('div', { class: 'thumb' });
+      const el = h('div', { class: 'kit-item', title: 'Añadir como pantalla nueva' }, thumb, t.name);
+      el.addEventListener('click', () => this.addScreenFromTemplate(t));
+      tgrid.append(el);
+      this.screenThumb(t, thumb);
+    }
+    wrap.append(tgrid);
+    wrap.append(h('div', { class: 'section-title' }, 'Piezas (Stud Style)'), h('div', { class: 'hint', style: { padding: '0 12px 8px' } }, 'Piezas listas en estilo simulador. Arrástralas al lienzo o haz clic para insertarlas. Todo son instancias de Roblox editables.'));
     const grid = h('div', { class: 'kit-grid' });
     for (const item of KIT) {
       const thumb = h('div', { class: 'thumb' });
@@ -220,6 +249,18 @@ class App {
     r.root.style.position = 'absolute';
     r.root.style.left = `${59 - (b.x + b.w / 2) * k}px`;
     r.root.style.top = `${32 - (b.y + b.h / 2) * k}px`;
+    host.style.position = 'relative';
+  }
+
+  async screenThumb(t, host) {
+    await ensureKitAssets(this);
+    const { doc } = normalizeDocument({ screens: [t.make()] });
+    doc.assets = this.store.doc.assets;
+    const scr = doc.screens[0];
+    const r = new ScreenRenderer(host, { doc, mode: 'edit' });
+    r.render(scr);
+    const k = Math.min(118 / scr.design.width, 64 / scr.design.height);
+    Object.assign(r.root.style, { transform: `scale(${k})`, transformOrigin: '0 0', position: 'absolute', left: `${(118 - scr.design.width * k) / 2}px`, top: '0', background: scr.design.background });
     host.style.position = 'relative';
   }
 
@@ -265,6 +306,7 @@ class App {
       { sep: true },
       { label: 'Modificador para la selección', submenu: mods },
       { label: 'Pantalla nueva', submenu: Object.entries(DEVICES).map(([k, d]) => ({ label: d.label, action: () => this.cmd.addScreen(k) })) },
+      { label: 'Pantalla desde plantilla', submenu: SCREEN_TEMPLATES.map((t) => ({ label: t.name, action: () => this.addScreenFromTemplate(t) })) },
       { label: 'Del kit', submenu: KIT.map((k) => ({ label: k.name, action: () => this.insertKit(k) })) },
     ];
   }
