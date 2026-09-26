@@ -16,14 +16,18 @@ puede leer y escribir este JSON a mano, y la exportación a Roblox es 1:1.
       "ClassName": "ScreenGui",
       "Name": "MainUI",
       "props": { "ResetOnSpawn": false, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": false },
-      "design": { "device": "studio", "width": 1280, "height": 720, "x": 0, "y": 0 },  // solo editor
+      "design": { "device": "studio", "width": 1280, "height": 720, "x": 0, "y": 0,   // solo editor
+                  "autoScale": true,        // el LocalScript escala la UI a otras pantallas (UIScale)
+                  "background": "#3A6EA5",  // color de fondo de la vista previa
+                  "guides": [{ "axis": "v", "pos": 640 }], "grid": { "columns": 12, "gutter": 16, "margin": 24 } },
       "children": [ /* nodos */ ]
     }
   ],
   "assets": {                        // imágenes locales (vista previa) + su id de Roblox
     "a1": { "name": "coin", "url": "data:image/png;base64,...", "width": 128, "height": 128, "rbxId": "1234567890" }
   },
-  "components": {}                   // lo gestiona el editor
+  "components": {},                  // lo gestiona el editor (maestros en la pantalla "Componentes")
+  "styles": { "colors": [{ "id": "s1", "name": "Primario", "value": "#FF7A00" }], "texts": [] }  // estilos enlazados
 }
 ```
 
