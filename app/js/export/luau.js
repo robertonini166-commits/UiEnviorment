@@ -52,28 +52,39 @@ export function exportLuau(doc, opts = {}) {
   const target = opts.target || 'commandbar';
   const out = [];
   let vid = 0;
-  const emit = (node, parentVar, indent) => {
+  // Every non-root instance lives in its own `do ... end` block so its local is released when the
+  // block ends: Luau allows at most 200 locals per function, and big UIs have thousands of instances.
+  const emit = (node, parentVar, indent, { root = false, collect = null } = {}) => {
     const v = `i${++vid}`;
     report.count++;
-    out.push(`${indent}local ${v} = Instance.new(${luaString(node.ClassName)})`);
-    out.push(`${indent}${v}.Name = ${luaString(node.Name)}`);
+    let ind = indent;
+    if (!root) {
+      out.push(`${indent}do`);
+      ind = indent + '\t';
+    }
+    out.push(`${ind}local ${v} = Instance.new(${luaString(node.ClassName)})`);
+    out.push(`${ind}${v}.Name = ${luaString(node.Name)}`);
     const optional = [];
     for (const [p, val, def, opt] of exportProps(node)) {
       const line = `${v}.${p} = ${luaValue(def, val, resolveContent, node, p)}`;
       if (opt) optional.push(line);
-      else out.push(indent + line);
+      else out.push(ind + line);
     }
-    if (optional.length) out.push(`${indent}pcall(function() ${optional.join('; ')} end) -- propiedades nuevas/beta`);
-    if (node.source !== undefined) out.push(`${indent}${v}.Source = ${luaString(node.source)}`);
-    for (const c of node.children || []) emit(c, v, indent);
-    if (parentVar) out.push(`${indent}${v}.Parent = ${parentVar}`);
+    if (optional.length) out.push(`${ind}pcall(function() ${optional.join('; ')} end) -- propiedades nuevas/beta`);
+    if (node.source !== undefined) out.push(`${ind}${v}.Source = ${luaString(node.source)}`);
+    for (const c of node.children || []) emit(c, v, ind);
+    if (collect) out.push(`${ind}table.insert(${collect}, ${v})`);
+    if (!root) {
+      if (parentVar) out.push(`${ind}${v}.Parent = ${parentVar}`);
+      out.push(`${indent}end`);
+    }
     return v;
   };
 
   if (target === 'snippet') {
-    out.push('-- Generado por RbxUI Studio', 'local function build(parent: Instance)');
-    const vars = (opts.nodes || []).map((n) => emit(n, 'parent', '\t'));
-    out.push(`\treturn ${vars.join(', ') || 'nil'}`, 'end', '', 'return build');
+    out.push('-- Generado por RbxUI Studio', 'local function build(parent: Instance)', '\tlocal created = {}');
+    for (const n of opts.nodes || []) emit(n, 'parent', '\t', { collect: 'created' });
+    out.push('\treturn table.unpack(created)', 'end', '', 'return build');
     return { code: out.join('\n') + '\n', report };
   }
   const screens = opts.screens || doc.screens;
@@ -88,7 +99,7 @@ export function exportLuau(doc, opts = {}) {
     out.push(...header, 'local Build = {}', '');
     for (const s of screens) {
       out.push(`function Build.${s.Name.replace(/[^A-Za-z0-9_]/g, '_') || 'Screen'}(parent: Instance?): ScreenGui`);
-      const v = emit(Object.assign({}, s, { children: [...s.children, ...(opts.extra ? opts.extra(s) : []).map((e) => ({ ClassName: e.ClassName, Name: e.Name, props: {}, children: [], source: e.source }))] }), null, '\t');
+      const v = emit(Object.assign({}, s, { children: [...s.children, ...(opts.extra ? opts.extra(s) : []).map((e) => ({ ClassName: e.ClassName, Name: e.Name, props: {}, children: [], source: e.source }))] }), null, '\t', { root: true });
       out.push(`\t${v}.Parent = parent`, `\treturn ${v}`, 'end', '');
     }
     out.push('return Build');
@@ -98,7 +109,7 @@ export function exportLuau(doc, opts = {}) {
     for (const s of screens) {
       out.push(`do -- ${s.Name}`);
       out.push(`\tlocal old = StarterGui:FindFirstChild(${luaString(s.Name)})`, '\tif old then old:Destroy() end');
-      const v = emit(Object.assign({}, s, { children: [...s.children, ...(opts.extra ? opts.extra(s) : []).map((e) => ({ ClassName: e.ClassName, Name: e.Name, props: {}, children: [], source: e.source }))] }), null, '\t');
+      const v = emit(Object.assign({}, s, { children: [...s.children, ...(opts.extra ? opts.extra(s) : []).map((e) => ({ ClassName: e.ClassName, Name: e.Name, props: {}, children: [], source: e.source }))] }), null, '\t', { root: true });
       out.push(`\t${v}.Parent = StarterGui`, 'end', '');
     }
     out.push('if recording then ChangeHistoryService:FinishRecording(recording, Enum.FinishRecordingOperation.Commit) end',

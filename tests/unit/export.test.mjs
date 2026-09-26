@@ -89,3 +89,14 @@ test('every screen template normalizes, lints clean and exports', async () => {
     }
   }
 });
+
+test('big documents (1000+ instances) compile in Luau and match the rbxmx', { skip: !lune }, async () => {
+  const { SCREEN_TEMPLATES } = await import('../../app/js/editor/screen-templates.js');
+  const { doc } = normalizeDocument({ screens: SCREEN_TEMPLATES.map((t) => t.make()) });
+  writeFileSync('out/big.luau', exportLuau(doc).code);
+  writeFileSync('out/big-module.luau', exportLuau(doc, { target: 'module' }).code);
+  writeFileSync('out/big-snippet.luau', exportLuau(doc, { target: 'snippet', nodes: doc.screens[1].children }).code);
+  writeFileSync('out/big.rbxmx', exportRbxmx(doc).xml);
+  assert.match(execFileSync('lune', ['run', 'tests/luau-compile.luau', 'out/big.luau', 'out/big-module.luau', 'out/big-snippet.luau'], { encoding: 'utf8' }), /OK/);
+  assert.match(execFileSync('lune', ['run', 'tests/luau-check.luau', 'out/big.luau', 'out/big.rbxmx'], { encoding: 'utf8' }), /OK/);
+});

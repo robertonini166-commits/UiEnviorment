@@ -124,6 +124,7 @@ Leyenda: ✅ hecho · 🟡 adaptado o parcial · ❌ no hecho (ver "Cómo puedes
 | Dev Mode / Inspect | ✅ | Pestaña Código: Luau y JSON en vivo |
 | **Exportar a Roblox** | ✅ | `.rbxmx` (arrastrar a Studio), Luau para la Command Bar y ModuleScript, validados con rbx-dom y Lune |
 | **Importar desde Roblox** | ✅ | Abre `.rbxmx` guardados desde Studio para editarlos aquí |
+| **Sincronización en vivo con Studio** | ✅ | Plugin + `node cli/rbxui.mjs sync` (como Rojo). Ver `docs/LIVE_SYNC.md` |
 | Autoguardado | ✅ | IndexedDB, más guardar/abrir `.rbxui.json` |
 | App instalable / sin conexión | ✅ | PWA (service worker) |
 | Importar `.fig` o SVG | ❌ | Formato cerrado de Figma |
@@ -158,7 +159,7 @@ Leyenda: ✅ hecho · 🟡 adaptado o parcial · ❌ no hecho (ver "Cómo puedes
    Firebase). Si quieres lanzarlo como servicio, habría que decidir hosting y cuentas.
 8. **Publicar la web.** El workflow de GitHub Pages está listo (`.github/workflows/pages.yml`). Tienes que
    activarlo una vez en el repositorio: Settings › Pages › Source = "GitHub Actions", y fusionar a `main`.
-9. **Plugin de Roblox Studio con sincronización en vivo.** Un plugin que reciba los cambios del editor al momento
-   (como Rojo). Es viable, pero hay que publicarlo en tu cuenta de Roblox.
+9. **Probar el plugin de sincronización en vivo.** Ya está hecho (`docs/LIVE_SYNC.md`), pero no lo he podido
+   probar dentro de Studio. Si lo publicas en tu cuenta de Roblox, cualquiera podrá instalarlo desde la Creator Store.
 10. **Vectores, formas libres y efectos que Roblox no tiene** (sombra interior, blur de capa, blend modes). Solo se
     podrían hacer rasterizando a imagen. Si los quieres, añado "convertir a imagen" automático al exportar.

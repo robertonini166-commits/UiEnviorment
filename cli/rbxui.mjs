@@ -7,6 +7,8 @@
 //   node cli/rbxui.mjs import   <file.rbxmx> [--out doc.json]
 //   node cli/rbxui.mjs fonts                         # list the official Roblox font families
 //   node cli/rbxui.mjs serve    [port]               # run the editor locally
+//   node cli/rbxui.mjs sync     [port]               # live sync server for the Roblox Studio plugin (default 34872)
+//   node cli/rbxui.mjs plugin   [--out file]         # build the Studio plugin (.rbxmx) to drop in your Plugins folder
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import path from 'node:path';
@@ -154,12 +156,77 @@ function doImport() {
   console.log(`${out} — ${screens.length} pantalla(s)`);
 }
 
+async function sync() {
+  const http = await import('node:http');
+  const port = Number(file || 34872);
+  let latest = null, version = null, code = '';
+  const cors = {
+    'access-control-allow-origin': '*',
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
+    'access-control-allow-headers': 'content-type',
+    'access-control-allow-private-network': 'true', // Chrome Private Network Access (https page -> localhost)
+  };
+  const srv = http.createServer((req, res) => {
+    if (req.method === 'OPTIONS') {
+      res.writeHead(204, cors);
+      return res.end();
+    }
+    const url = new URL(req.url, 'http://x');
+    if (req.method === 'POST' && url.pathname === '/push') {
+      let body = '';
+      req.on('data', (d) => (body += d));
+      req.on('end', () => {
+        try {
+          const { doc } = normalizeDocument(JSON.parse(body));
+          const screens = doc.screens.filter((s) => !s.design?.componentsPage);
+          const extra = (s) => (hasInteractions(s) ? [{ ClassName: 'LocalScript', Name: 'RbxUIController', source: buildRuntime(s) }] : []);
+          code = exportLuau(doc, { screens, extra, target: 'module' }).code;
+          latest = doc;
+          version = Date.now().toString(36);
+          res.writeHead(200, { ...cors, 'content-type': 'application/json' });
+          res.end(JSON.stringify({ ok: true, version, screens: screens.map((s) => s.Name) }));
+          console.log(new Date().toLocaleTimeString(), 'recibido:', screens.map((s) => s.Name).join(', '));
+        } catch (e) {
+          res.writeHead(400, cors);
+          res.end(String(e.message));
+        }
+      });
+      return;
+    }
+    if (url.pathname === '/version') {
+      res.writeHead(200, { ...cors, 'content-type': 'application/json' });
+      return res.end(JSON.stringify({ version, name: latest?.name || null }));
+    }
+    if (url.pathname === '/luau') {
+      res.writeHead(latest ? 200 : 404, { ...cors, 'content-type': 'text/plain; charset=utf-8' });
+      return res.end(latest ? code : '-- nada sincronizado todavía');
+    }
+    res.writeHead(404, cors);
+    res.end();
+  });
+  srv.listen(port, '127.0.0.1', () => console.log(`RbxUI Sync en http://localhost:${port} — activa "Sincronizar con Studio" en el editor y el botón Sync del plugin.`));
+}
+
+function buildPlugin() {
+  const src = readFileSync(path.join(root, 'plugin/RbxUISync.server.luau'), 'utf8');
+  const node = { ClassName: 'Script', Name: 'RbxUISync', props: {}, children: [], source: src };
+  // minimal rbxmx with a Script (plugins are Scripts in the Plugins folder)
+  const xml = `<roblox version="4">\n  <Item class="Script" referent="RBX0">\n    <Properties>\n      <string name="Name">RbxUISync</string>\n      <ProtectedString name="Source"><![CDATA[${src.replace(/]]>/g, ']]]]><![CDATA[>')}]]></ProtectedString>\n    </Properties>\n  </Item>\n</roblox>\n`;
+  void node;
+  const out = opt('out', file && !file.startsWith('--') ? file : 'out/RbxUISync.rbxmx');
+  mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
+  writeFileSync(out, xml);
+  console.log(out + '  → cópialo en %LOCALAPPDATA%\\Roblox\\Plugins (Windows) o ~/Documents/Roblox/Plugins (Mac) y reinicia Studio');
+}
+
 switch (cmd) {
   case 'render': await render(); break;
   case 'export': doExport(); break;
   case 'validate': validate(); break;
   case 'import': doImport(); break;
   case 'fonts': FONT_FAMILIES.forEach((f) => console.log(`${f.id.padEnd(18)} ${f.name.padEnd(20)} ${f.faces.length ? 'pesos ' + [...new Set(f.faces.map((x) => x.weight))].join(',') : '(solo Roblox, vista ≈ ' + f.approx + ')'}`)); break;
+  case 'sync': await sync(); break;
+  case 'plugin': buildPlugin(); break;
   case 'serve': {
     const port = Number(file || 5170);
     await serve(port);

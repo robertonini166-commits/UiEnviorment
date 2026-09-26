@@ -354,6 +354,7 @@ class App {
         { label: (s.view.snap ? '✓ ' : '') + 'Ajuste inteligente', action: () => s.setView({ snap: !s.view.snap }) },
         { label: (s.doc.settings?.robloxTextMetrics !== false ? '✓ ' : '') + 'Tamaño de texto como Roblox', action: () => this.toggleMetrics() },
       ] },
+      { label: (this.syncOn ? '✓ ' : '') + 'Sincronizar con Studio (en vivo)', action: () => this.toggleSync() },
       { label: 'Historial de cambios…', action: () => this.historyDialog() },
       { label: 'Fuentes de Roblox…', action: () => this.fontsDialog() },
       { label: 'Ayuda', submenu: [
@@ -763,6 +764,53 @@ class App {
       { label: 'Escalar', primary: true, action: () => this.cmd.scaleSelection(parseFloat(inp.value.replace(',', '.'))) },
     ]);
     setTimeout(() => inp.select(), 0);
+  }
+
+  /** Live sync: pushes the document to `node cli/rbxui.mjs sync` (localhost) for the Studio plugin. */
+  toggleSync() {
+    this.syncOn = !this.syncOn;
+    if (!this.syncOn) {
+      this.syncBadge?.remove();
+      return toast('Sincronización desactivada');
+    }
+    if (!this._syncHooked) {
+      this._syncHooked = true;
+      this.store.on((w) => {
+        if (!this.syncOn || w.live || !w.doc) return;
+        clearTimeout(this._syncT);
+        this._syncT = setTimeout(() => this.pushSync(), 350);
+      });
+    }
+    this.syncBadge = h('span', { class: 'sync-badge', title: 'Sincronizando con Roblox Studio (localhost:34872)' }, '● Studio');
+    document.querySelector('.tb-right').prepend(this.syncBadge);
+    this.pushSync(true);
+  }
+
+  async pushSync(first = false) {
+    const d = this.store.doc;
+    // images travel as rbxassetid only (no data URLs)
+    const assets = Object.fromEntries(Object.entries(d.assets || {}).map(([k, a]) => [k, { name: a.name, rbxId: a.rbxId, width: a.width, height: a.height }]));
+    try {
+      const r = await fetch('http://localhost:34872/push', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...d, assets }) });
+      if (!r.ok) throw new Error(await r.text());
+      this.syncBadge?.classList.remove('err');
+      if (first) {
+        const j = await r.json();
+        toast(`Conectado con RbxUI Sync (${j.screens.join(', ')}). Pulsa "Sync" en el plugin de Studio.`);
+      }
+    } catch (e) {
+      this.syncBadge?.classList.add('err');
+      if (first) {
+        dialog('Sincronizar con Roblox Studio', h('div', {},
+          h('p', {}, 'No encuentro el servidor de sincronización en tu PC. Pasos (una sola vez):'),
+          h('ol', {},
+            h('li', {}, 'Instala Node.js y descarga este proyecto.'),
+            h('li', {}, 'En una terminal: ', h('code', {}, 'node cli/rbxui.mjs sync')),
+            h('li', {}, 'Instala el plugin: ', h('code', {}, 'node cli/rbxui.mjs plugin'), ' y copia out/RbxUISync.rbxmx en tu carpeta Plugins de Roblox.'),
+            h('li', {}, 'En Studio: pestaña Plugins › RbxUI › Sync (permite la conexión a localhost).')),
+          h('p', { class: 'hint' }, 'Cada cambio que hagas aquí aparecerá al momento en StarterGui como instancias reales.')), [{ label: 'Entendido' }]);
+      }
+    }
   }
 
   historyDialog() {

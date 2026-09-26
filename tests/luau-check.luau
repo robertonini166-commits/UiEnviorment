@@ -71,7 +71,22 @@ local function norm(s)
 	s = s:gsub('%s*<token name="ScreenInsets">2</token>', "")
 	return s
 end
-local na, nb = norm(a), norm(b)
+-- property order inside <Properties> may differ between serializers: sort them
+local function sortProps(s)
+	s = s:gsub("%s*\n%s*", "")
+	return (s:gsub("<Properties>(.-)</Properties>", function(inner)
+		local props = {}
+		for elem in inner:gmatch('(<(%w+) name="[^"]*">.-</%2>)') do
+			table.insert(props, elem)
+		end
+		for elem in inner:gmatch('(<%w+ name="[^"]*"/>)') do
+			table.insert(props, elem)
+		end
+		table.sort(props)
+		return "<Properties>" .. table.concat(props) .. "</Properties>"
+	end))
+end
+local na, nb = sortProps(norm(a)), sortProps(norm(b))
 if na ~= nb then
 	fails += 1
 	fs.writeFile("out/_luau.xml", na)

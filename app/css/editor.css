@@ -222,3 +222,5 @@ pre.code { background: #1a1a1a; border-radius: 5px; padding: 8px; overflow: auto
 body.outline-mode .rbx-own { display: none; }
 body.outline-mode .rbx-node { outline: 1px solid rgba(255,255,255,.55); outline-offset: -0.5px; }
 body.outline-mode .screen-bg { background: #1a1a1a !important; background-image: none !important; }
+.sync-badge { color: var(--ok); font-weight: 600; font-size: 11px; padding: 0 6px; }
+.sync-badge.err { color: var(--danger); }

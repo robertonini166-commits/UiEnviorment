@@ -22,6 +22,7 @@ TextSize, layouts, barra superior), así que lo que ves es lo que tendrás en el
   - **Script Luau** para la *Command Bar* (crea la UI en StarterGui; se puede deshacer)
   - **ModuleScript** para crear la UI desde código
 - **Importar** UIs existentes desde Studio (`.rbxmx`) para editarlas aquí.
+- **Sincronización en vivo** con Studio mediante un plugin, como Rojo ([docs/LIVE_SYNC.md](docs/LIVE_SYNC.md)).
 - Kit "Stud Style" de simulador listo para usar (ventanas, botones, tarjetas, HUD, divisas, barras…).
 
 Todas las funciones de Figma y su estado: [docs/FIGMA_PARITY.md](docs/FIGMA_PARITY.md).
