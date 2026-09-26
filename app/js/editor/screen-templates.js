@@ -107,6 +107,12 @@ export function hudScreen() {
   const s = SAMPLE().screens[0];
   s.children = s.children.filter((c) => c.Name !== 'ShopWindow');
   s.Name = 'HUD';
+  // the shop window isn't part of this template: drop interactions that pointed to it
+  const strip = (n) => {
+    if (n.interactions) n.interactions = n.interactions.filter((i) => (i.targetName || i.target) !== 'ShopWindow');
+    (n.children || []).forEach(strip);
+  };
+  strip(s);
   return s;
 }
 
