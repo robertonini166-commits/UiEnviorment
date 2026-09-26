@@ -1,5 +1,5 @@
-// Offline support: stale-while-revalidate cache of the app shell, scripts, fonts and docs.
-const CACHE = 'rbxui-v1';
+// Offline support: network-first (always the latest version when online), cache fallback offline.
+const CACHE = 'rbxui-v2';
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./', './index.html', './app/css/editor.css', './app/css/rbx.css', './app/js/main.js', './app/img/icon.svg'])).then(() => self.skipWaiting()));
 });
@@ -9,12 +9,11 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== location.origin) return;
-  e.respondWith(caches.open(CACHE).then(async (c) => {
-    const hit = await c.match(e.request);
-    const net = fetch(e.request).then((r) => {
-      if (r.ok) c.put(e.request, r.clone());
-      return r;
-    }).catch(() => hit);
-    return hit || net;
-  }));
+  e.respondWith(fetch(e.request).then((r) => {
+    if (r.ok) {
+      const copy = r.clone();
+      caches.open(CACHE).then((c) => c.put(e.request, copy));
+    }
+    return r;
+  }).catch(() => caches.match(e.request)));
 });
