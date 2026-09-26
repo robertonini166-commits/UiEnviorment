@@ -63,6 +63,32 @@ function sortItems(items, sortOrder) {
   return indexed.map((x) => x.n);
 }
 
+// Roblox top bar (2024+ design): core UI buttons live in a 58 px band at the top of the screen.
+export const TOPBAR_HEIGHT = 58;
+// Approximate width taken by the left top bar controls (menu + chat) for TopbarSafeInsets.
+export const TOPBAR_LEFT_CONTROLS = 116;
+
+/** Area (in screen pixels) where a ScreenGui lays out its children, per IgnoreGuiInset/ScreenInsets. */
+export function screenSafeArea(screen, W, H) {
+  const P = screen.props || {};
+  const dev = screen.design?.safe || { l: 0, r: 0, t: 0, b: 0 };
+  let mode = P.ScreenInsets || 'CoreUISafeInsets';
+  if (P.IgnoreGuiInset && mode === 'CoreUISafeInsets') mode = 'DeviceSafeInsets';
+  if (mode === 'None') return { x: 0, y: 0, w: W, h: H, mode };
+  const a = { x: dev.l, y: dev.t, w: W - dev.l - dev.r, h: H - dev.t - dev.b, mode };
+  if (mode === 'CoreUISafeInsets') {
+    const top = Math.max(dev.t, TOPBAR_HEIGHT);
+    a.y = top;
+    a.h = H - top - dev.b;
+  } else if (mode === 'TopbarSafeInsets') {
+    a.x = dev.l + TOPBAR_LEFT_CONTROLS;
+    a.w = W - a.x - dev.r;
+    a.y = dev.t;
+    a.h = TOPBAR_HEIGHT;
+  }
+  return a;
+}
+
 /**
  * @param {object} screen ScreenGui node (with design.width/height)
  * @param {object} opts { measureText(node, maxW) -> {w,h}, width, height }
@@ -72,7 +98,8 @@ export function layoutScreen(screen, opts = {}) {
   const W = opts.width ?? screen.design?.width ?? 1280;
   const H = opts.height ?? screen.design?.height ?? 720;
   const boxes = new Map();
-  const root = { x: 0, y: 0, w: W, h: H, ax: 0, ay: 0, rot: 0, scale: 1, anchor: [0, 0], content: { x: 0, y: 0, w: W, h: H } };
+  const safe = opts.ignoreInsets ? { x: 0, y: 0, w: W, h: H } : screenSafeArea(screen, W, H);
+  const root = { x: 0, y: 0, w: W, h: H, ax: 0, ay: 0, rot: 0, scale: 1, anchor: [0, 0], content: { x: safe.x, y: safe.y, w: safe.w, h: safe.h } };
   boxes.set(screen.id, root);
   layoutChildren(screen, root, boxes, opts);
   return boxes;

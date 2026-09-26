@@ -4,7 +4,7 @@
 import { ScreenRenderer } from '../core/renderer.js';
 import { isGuiObject, isText, isLayout, canParent } from '../core/schema.js';
 import { createNode, uniqueName, walk } from '../core/model.js';
-import { localToParent, parentToLocal } from '../core/layout.js';
+import { localToParent, parentToLocal, screenSafeArea, TOPBAR_HEIGHT } from '../core/layout.js';
 import { worldPolygon, worldToParentLocal, pointInPoly, paintOrder, writeBox, chainIds, aabb } from './geometry.js';
 import { clamp, round } from '../core/types.js';
 import { emSize, cssFamily } from '../core/fonts.js';
@@ -100,7 +100,16 @@ export class Canvas {
         f.bg.style.backgroundSize = 'cover';
         f.bg.style.backgroundPosition = 'center';
       } else f.bg.style.backgroundImage = '';
-      f.label.textContent = `${scr.Name}  ·  ${d.width}×${d.height}`;
+      if (!f.core) {
+        f.core = h('div', { class: 'core-ui' });
+        f.frame.append(f.core);
+      }
+      const coreKey = [v.showCoreUI, d.width, d.height, JSON.stringify(d.safe), scr.props.IgnoreGuiInset, scr.props.ScreenInsets, JSON.stringify(d.guides || []), JSON.stringify(d.grid || null)].join('|');
+      if (f.coreKey !== coreKey) {
+        f.coreKey = coreKey;
+        f.core.innerHTML = coreUiSvg(scr, v.showCoreUI);
+      }
+      f.label.textContent = `${scr.Name}  ·  ${d.width}×${d.height}${d.componentsPage ? '  (no se exporta)' : ''}`;
       f.label.style.transform = `scale(${1 / v.zoom})`;
       f.label.classList.toggle('active', scr.id === s.activeScreenId);
       f.renderer.render(scr);
@@ -113,6 +122,118 @@ export class Canvas {
       }
     }
     this.renderOverlay();
+    this.renderRulers();
+  }
+
+  renderRulers() {
+    const v = this.store.view;
+    const host = document.getElementById('rulers');
+    if (!host) return;
+    if (!v.showRulers) {
+      host.style.display = 'none';
+      return;
+    }
+    host.style.display = '';
+    const r = this.wrap.getBoundingClientRect();
+    if (!this.rulerH) {
+      this.rulerH = h('canvas', { class: 'ruler h' });
+      this.rulerV = h('canvas', { class: 'ruler v' });
+      this.rulerCorner = h('div', { class: 'ruler-corner' });
+      host.append(this.rulerH, this.rulerV, this.rulerCorner);
+      const startGuide = (axis) => (e) => {
+        e.preventDefault();
+        const scr = this.store.activeScreen;
+        if (!scr) return;
+        this.store.begin('Guía');
+        this.store.live(() => {
+          scr.design.guides = [...(scr.design.guides || []), { axis, pos: 0 }];
+        });
+        this.drag = { kind: 'guide', screenId: scr.id, index: scr.design.guides.length - 1, axis };
+        this.canvasEl.setPointerCapture?.(e.pointerId);
+      };
+      this.rulerH.addEventListener('pointerdown', startGuide('h'));
+      this.rulerV.addEventListener('pointerdown', startGuide('v'));
+      this.rulerH.addEventListener('pointermove', (e) => this.drag?.kind === 'guide' && this.onMove(e));
+      this.rulerV.addEventListener('pointermove', (e) => this.drag?.kind === 'guide' && this.onMove(e));
+      window.addEventListener('pointerup', (e) => this.drag?.kind === 'guide' && this.onUp(e));
+      window.addEventListener('pointermove', (e) => this.drag?.kind === 'guide' && e.target !== this.canvasEl && this.onMove(e));
+    }
+    const dpr = window.devicePixelRatio || 1;
+    const W = Math.round(r.width), H = Math.round(r.height), T = 20;
+    const scr = this.store.activeScreen;
+    const ox = scr ? scr.design.x : 0, oy = scr ? scr.design.y : 0;
+    const steps = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000];
+    const step = steps.find((st) => st * v.zoom >= 60) || 10000;
+    const sel = this.cmd.selectionWorldBounds();
+    const draw = (cv, horiz) => {
+      const len = horiz ? W : H;
+      cv.width = len * dpr;
+      cv.height = T * dpr;
+      cv.style.width = (horiz ? len - T : T) + 'px';
+      if (horiz) {
+        cv.style.width = len - T + 'px';
+        cv.style.height = T + 'px';
+        cv.width = (len - T) * dpr;
+      } else {
+        cv.width = T * dpr;
+        cv.height = (len - T) * dpr;
+        cv.style.height = len - T + 'px';
+      }
+      const g = cv.getContext('2d');
+      g.scale(dpr, dpr);
+      g.fillStyle = '#2c2c2c';
+      g.fillRect(0, 0, horiz ? len : T, horiz ? T : len);
+      g.fillStyle = '#8a8a8a';
+      g.strokeStyle = '#555';
+      g.font = '9px Inter, system-ui, sans-serif';
+      const pan = horiz ? v.panX : v.panY;
+      const origin = horiz ? ox : oy;
+      // selection band
+      if (sel) {
+        const a = (horiz ? sel.x : sel.y) * v.zoom + pan - T, b = ((horiz ? sel.x + sel.w : sel.y + sel.h)) * v.zoom + pan - T;
+        g.fillStyle = 'rgba(13,153,255,.25)';
+        if (horiz) g.fillRect(a, 0, b - a, T);
+        else g.fillRect(0, a, T, b - a);
+        g.fillStyle = '#8a8a8a';
+      }
+      const worldStart = (T - pan) / v.zoom, worldEnd = (len - pan) / v.zoom;
+      const first = Math.floor((worldStart - origin) / step) * step;
+      g.beginPath();
+      for (let wv = first; wv + origin <= worldEnd; wv += step / 5) {
+        const px = (wv + origin) * v.zoom + pan - T;
+        const major = Math.abs(wv / step - Math.round(wv / step)) < 1e-6;
+        const tick = major ? T : 5;
+        if (horiz) {
+          g.moveTo(px + 0.5, T);
+          g.lineTo(px + 0.5, T - tick);
+        } else {
+          g.moveTo(T, px + 0.5);
+          g.lineTo(T - tick, px + 0.5);
+        }
+        if (major) {
+          if (horiz) g.fillText(String(Math.round(wv)), px + 3, 9);
+          else {
+            g.save();
+            g.translate(9, px - 3);
+            g.rotate(-Math.PI / 2);
+            g.fillText(String(Math.round(wv)), 0, 0);
+            g.restore();
+          }
+        }
+      }
+      g.stroke();
+    };
+    draw(this.rulerH, true);
+    draw(this.rulerV, false);
+    // pixel grid
+    const pg = this.pixelGrid || (this.pixelGrid = h('div', { class: 'pixel-grid' }));
+    if (!pg.isConnected) this.wrap.insertBefore(pg, this.overlay);
+    const on = v.pixelGrid !== false && v.zoom >= 6;
+    pg.style.display = on ? '' : 'none';
+    if (on) {
+      pg.style.backgroundSize = `${v.zoom}px ${v.zoom}px`;
+      pg.style.backgroundPosition = `${v.panX}px ${v.panY}px`;
+    }
   }
 
   boxesOf(screen) {
@@ -479,6 +600,17 @@ export class Canvas {
       return;
     }
 
+    // grab an existing guide
+    const gscr = this.screenAt(wx, wy) || s.activeScreen;
+    if (gscr?.design.guides?.length && s.view.showRulers) {
+      const tolG = 4 / this.zoom;
+      const gi = gscr.design.guides.findIndex((g) => (g.axis === 'h' ? Math.abs(wy - gscr.design.y - g.pos) : Math.abs(wx - gscr.design.x - g.pos)) <= tolG);
+      if (gi >= 0 && !s.selection.length) {
+        s.begin('Mover guía');
+        this.drag = { kind: 'guide', screenId: gscr.id, index: gi, axis: gscr.design.guides[gi].axis };
+        return;
+      }
+    }
     // handles of current selection
     const sel = s.selection.filter((id) => s.get(id));
     if (sel.length) {
@@ -608,6 +740,14 @@ export class Canvas {
     }
     if (d.kind === 'pan') {
       s.setView({ panX: d.px + e.clientX - d.x, panY: d.py + e.clientY - d.y });
+      return;
+    }
+    if (d.kind === 'guide') {
+      const scr = s.get(d.screenId);
+      s.live(() => {
+        const gd = scr.design.guides[d.index];
+        if (gd) gd.pos = Math.round(d.axis === 'h' ? wy - scr.design.y : wx - scr.design.x);
+      });
       return;
     }
     if (d.kind === 'marquee' || d.kind === 'create') {
@@ -741,6 +881,15 @@ export class Canvas {
     for (const b of sibs) {
       candX.push(b.x, b.x + b.w / 2, b.x + b.w);
       candY.push(b.y, b.y + b.h / 2, b.y + b.h);
+    }
+    // ruler guides of the screen (converted into parent-local space; exact for unrotated parents)
+    const scrG = item.screen;
+    if (scrG?.design.guides?.length && s.view.showRulers) {
+      const o = this.parentLocalToWorld(item.parentId, 0, 0);
+      for (const g of scrG.design.guides) {
+        if (g.axis === 'v') candX.push(scrG.design.x + g.pos - o[0]);
+        else candY.push(scrG.design.y + g.pos - o[1]);
+      }
     }
     const tol = 6 / this.zoom;
     let bestX = null, bestY = null;
@@ -961,6 +1110,16 @@ export class Canvas {
     this.drag = null;
     this.guides = [];
     if (d.kind === 'pan') return;
+    if (d.kind === 'guide') {
+      const scr = s.get(d.screenId);
+      const r = this.wrap.getBoundingClientRect();
+      // dropped back on the ruler (or outside the screen) -> remove
+      const gd = scr.design.guides[d.index];
+      const outside = gd && (gd.pos < 0 || gd.pos > (d.axis === 'h' ? scr.design.height : scr.design.width));
+      if (e.clientX - r.left < 20 || e.clientY - r.top < 20 || outside) s.live(() => scr.design.guides.splice(d.index, 1));
+      s.commit();
+      return;
+    }
     if (d.kind === 'marquee') {
       this.marquee = null;
       this.renderOverlay();
@@ -1141,6 +1300,45 @@ export class Canvas {
     clearTimeout(this._hintT);
     this._hintT = setTimeout(() => this.hint.classList.remove('show'), ms);
   }
+}
+
+/** Non-exported overlay: Roblox top bar buttons, safe-area hint, mobile controls, guides, layout grid. */
+function coreUiSvg(scr, show) {
+  const d = scr.design;
+  const W = d.width, H = d.height;
+  const out = [];
+  const grid = d.grid;
+  if (grid?.columns > 0) {
+    const m = grid.margin ?? 24, gut = grid.gutter ?? 16, n = grid.columns;
+    const cw = (W - 2 * m - gut * (n - 1)) / n;
+    for (let i = 0; i < n; i++) out.push(`<rect x="${m + i * (cw + gut)}" y="0" width="${cw}" height="${H}" fill="rgba(255,60,60,.08)"/>`);
+  }
+  for (const g of d.guides || []) {
+    if (g.axis === 'h') out.push(`<line x1="0" x2="${W}" y1="${g.pos}" y2="${g.pos}" stroke="#ff3b8a" stroke-width="1" vector-effect="non-scaling-stroke"/>`);
+    else out.push(`<line y1="0" y2="${H}" x1="${g.pos}" x2="${g.pos}" stroke="#ff3b8a" stroke-width="1" vector-effect="non-scaling-stroke"/>`);
+  }
+  if (show) {
+    const safe = screenSafeArea(scr, W, H);
+    const dev = d.safe || { l: 0, r: 0, t: 0, b: 0 };
+    // device cutouts (notch)
+    if (dev.l) out.push(`<rect x="0" y="0" width="${dev.l}" height="${H}" fill="rgba(0,0,0,.35)"/><rect x="${dev.l / 2 - 6}" y="${H / 2 - 60}" width="12" height="120" rx="6" fill="#000"/>`);
+    if (dev.r) out.push(`<rect x="${W - dev.r}" y="0" width="${dev.r}" height="${H}" fill="rgba(0,0,0,.2)"/>`);
+    if (dev.b) out.push(`<rect x="${W / 2 - 70}" y="${H - dev.b / 2 - 3}" width="140" height="5" rx="2.5" fill="rgba(255,255,255,.6)"/>`);
+    // top bar buttons (Roblox 2024 top bar: 44px buttons in a 58px band)
+    const bx = dev.l + 12;
+    const btn = (x, icon) => `<g opacity=".9"><rect x="${x}" y="7" width="44" height="44" rx="22" fill="rgba(18,18,21,.72)"/>${icon(x + 22, 29)}</g>`;
+    const logo = (cx, cy) => `<rect x="${cx - 9}" y="${cy - 9}" width="18" height="18" rx="3" fill="none" stroke="#fff" stroke-width="2.4" transform="rotate(15 ${cx} ${cy})"/><rect x="${cx - 2.5}" y="${cy - 2.5}" width="5" height="5" fill="#fff" transform="rotate(15 ${cx} ${cy})"/>`;
+    const chat = (cx, cy) => `<path d="M${cx - 9} ${cy - 7}h18a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-9l-5 4v-4h-4a2 2 0 0 1-2-2v-9a2 2 0 0 1 2-2z" fill="none" stroke="#fff" stroke-width="2"/>`;
+    const dots = (cx, cy) => `<circle cx="${cx - 6}" cy="${cy}" r="2" fill="#fff"/><circle cx="${cx}" cy="${cy}" r="2" fill="#fff"/><circle cx="${cx + 6}" cy="${cy}" r="2" fill="#fff"/>`;
+    out.push(btn(bx, logo), btn(bx + 56, chat), btn(W - dev.r - 56, dots));
+    if (safe.mode === 'CoreUISafeInsets') out.push(`<line x1="0" x2="${W}" y1="${TOPBAR_HEIGHT}" y2="${TOPBAR_HEIGHT}" stroke="rgba(255,255,255,.35)" stroke-dasharray="6 5" vector-effect="non-scaling-stroke"/><text x="${W - dev.r - 70}" y="${TOPBAR_HEIGHT - 6}" font-size="10" fill="rgba(255,255,255,.55)" text-anchor="end" font-family="Inter,system-ui,sans-serif">zona segura (ScreenInsets)</text>`);
+    // mobile controls
+    if (d.device === 'phone' || d.device === 'phoneSmall' || d.device === 'tablet') {
+      out.push(`<circle cx="${dev.l + 120}" cy="${H - dev.b - 110}" r="62" fill="rgba(255,255,255,.12)" stroke="rgba(255,255,255,.35)" stroke-width="2"/><circle cx="${dev.l + 120}" cy="${H - dev.b - 110}" r="26" fill="rgba(255,255,255,.3)"/>`);
+      out.push(`<circle cx="${W - dev.r - 95}" cy="${H - dev.b - 90}" r="42" fill="rgba(255,255,255,.14)" stroke="rgba(255,255,255,.4)" stroke-width="2"/><path d="M${W - dev.r - 107} ${H - dev.b - 84}l12-12 12 12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round"/>`);
+    }
+  }
+  return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" style="position:absolute;inset:0;pointer-events:none;overflow:visible">${out.join('')}</svg>`;
 }
 
 export function isTyping(e) {

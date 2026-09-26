@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { normalizeDocument } from '../../app/js/core/model.js';
 import { layoutScreen } from '../../app/js/core/layout.js';
 
-const screen = (children, w = 1000, h = 500) => normalizeDocument({ screens: [{ ClassName: 'ScreenGui', Name: 'S', design: { width: w, height: h }, children }] }).doc.screens[0];
+const screen = (children, w = 1000, h = 500, props = { IgnoreGuiInset: true }) => normalizeDocument({ screens: [{ ClassName: 'ScreenGui', Name: 'S', props, design: { width: w, height: h }, children }] }).doc.screens[0];
 const box = (s, name) => {
   const boxes = layoutScreen(s);
   let found = null;
@@ -97,4 +97,15 @@ test('AutomaticSize grows a container to its children', () => {
     { ClassName: 'Frame', Name: 'Big', props: { Position: [0, 10, 0, 10], Size: [0, 200, 0, 120] } }] }]);
   const a = box(s, 'Auto');
   assert.deepEqual([a.w, a.h], [210, 130]);
+});
+
+test('ScreenGui insets: default keeps content below the 58px Roblox top bar', () => {
+  const kids = [{ ClassName: 'Frame', Name: 'Full', props: { Size: [1, 0, 1, 0] } }];
+  const def = screen(kids, 1000, 500, {});
+  const b = box(def, 'Full');
+  assert.deepEqual([b.ay, b.h], [58, 442]);
+  const ign = screen(kids, 1000, 500, { IgnoreGuiInset: true });
+  assert.deepEqual([box(ign, 'Full').ay, box(ign, 'Full').h], [0, 500]);
+  const none = screen(kids, 1000, 500, { ScreenInsets: 'None' });
+  assert.equal(box(none, 'Full').h, 500);
 });

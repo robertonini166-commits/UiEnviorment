@@ -628,6 +628,8 @@ export class Commands {
       screen.design.device = device;
       screen.design.width = d.width;
       screen.design.height = d.height;
+      if (d.safe) screen.design.safe = { ...d.safe };
+      else delete screen.design.safe;
     });
   }
 
@@ -643,6 +645,207 @@ export class Commands {
     return aabb(polys.flat());
   }
 }
+
+// ---------- more Figma features ----------
+Object.assign(Commands.prototype, {
+  /** Ctrl+Alt+C: copy the look (props + UI modifiers) of the first selected object. */
+  copyStyle() {
+    const n = this.store.selectedNodes()[0];
+    if (!n) return;
+    const skip = new Set(['Position', 'Size', 'AnchorPoint', 'LayoutOrder', 'Text', 'Image', 'Rotation', 'Visible', 'ZIndex', 'Name', 'PlaceholderText', 'CanvasSize']);
+    this.styleClipboard = {
+      props: Object.fromEntries(Object.entries(n.props).filter(([k]) => !skip.has(k)).map(([k, v]) => [k, deepClone(v)])),
+      mods: n.children.filter((c) => isModifier(c.ClassName) && !isLayout(c.ClassName) && !['UIPadding', 'UIFlexItem', 'UIAspectRatioConstraint', 'UISizeConstraint'].includes(c.ClassName)).map((c) => deepClone(c)),
+    };
+    toast('Estilo copiado');
+  },
+
+  /** Ctrl+Alt+V: paste the copied look onto the selection. */
+  pasteStyle() {
+    const st = this.styleClipboard;
+    if (!st) return toast('Primero copia un estilo (Ctrl+Alt+C)');
+    const s = this.store;
+    const nodes = s.selectedNodes().filter((n) => isGuiObject(n.ClassName));
+    s.edit('Pegar estilo', () => {
+      for (const n of nodes) {
+        const defs = getProps(n.ClassName);
+        for (const [k, v] of Object.entries(st.props)) if (defs[k]) n.props[k] = deepClone(v);
+        const kinds = new Set(st.mods.map((m) => m.ClassName));
+        n.children = n.children.filter((c) => !kinds.has(c.ClassName));
+        const fresh = st.mods.filter((m) => canParent(m.ClassName, n.ClassName)).map((m) => {
+          const c = deepClone(m);
+          walk(c, (x) => (x.id = x.id + '_' + Math.random().toString(36).slice(2, 8)));
+          return c;
+        });
+        n.children.splice(0, 0, ...fresh);
+      }
+    });
+  },
+
+  /** Select every node with the same class (and same name if `sameName`). */
+  selectMatching(sameName = false) {
+    const s = this.store;
+    const n = s.selectedNodes()[0];
+    if (!n) return;
+    const scr = s.screenOf(n.id);
+    const out = [];
+    walk(scr, (x) => {
+      if (x.ClassName === n.ClassName && (!sameName || x.Name === n.Name) && !x.editor?.locked) out.push(x.id);
+    });
+    s.select(out);
+    toast(`${out.length} seleccionados`);
+  },
+
+  findReplace(find, replace, { inNames = false, inTexts = true } = {}) {
+    if (!find) return 0;
+    const s = this.store;
+    let count = 0;
+    s.edit('Buscar y reemplazar', () => {
+      for (const n of s.allNodes()) {
+        if (inTexts && typeof n.props?.Text === 'string' && n.props.Text.includes(find)) {
+          n.props.Text = n.props.Text.split(find).join(replace);
+          count++;
+        }
+        if (inNames && n.Name.includes(find)) {
+          n.Name = n.Name.split(find).join(replace);
+          count++;
+        }
+      }
+    });
+    return count;
+  },
+
+  /** Batch rename: "$n" = number, "$&" = current name, "$c" = class. */
+  batchRename(pattern, start = 1) {
+    const s = this.store;
+    const nodes = s.selectedNodes();
+    s.edit('Renombrar', () => nodes.forEach((n, i) => {
+      n.Name = pattern.replace(/\$n/g, String(start + i)).replace(/\$&/g, n.Name).replace(/\$c/g, n.ClassName) || n.Name;
+    }));
+  },
+
+  /** Scale tool (K): scales the selection *and its contents* (sizes, text, strokes, radii, paddings). */
+  scaleSelection(f) {
+    if (!(f > 0) || f === 1) return;
+    const s = this.store;
+    const nodes = this.topLevel(s.selection).map((id) => s.get(id)).filter((n) => isGuiObject(n.ClassName));
+    const ud = (u) => (u ? [u[0], Math.round(u[1] * f)] : u);
+    const ud2 = (u) => (u ? [u[0], Math.round(u[1] * f), u[2], Math.round(u[3] * f)] : u);
+    s.edit('Escalar', () => {
+      const visit = (n, root) => {
+        const P = n.props;
+        if (P.Size) P.Size = ud2(P.Size);
+        if (P.Position && !root) P.Position = ud2(P.Position);
+        if (P.TextSize) P.TextSize = Math.max(1, Math.round(P.TextSize * f));
+        if (n.ClassName === 'UIStroke') P.Thickness = round(P.Thickness * f, 2);
+        if (n.ClassName === 'UICorner') for (const k of ['CornerRadius', 'TopLeftRadius', 'TopRightRadius', 'BottomRightRadius', 'BottomLeftRadius']) P[k] = ud(P[k]);
+        if (n.ClassName === 'UIPadding') for (const k of ['PaddingTop', 'PaddingBottom', 'PaddingLeft', 'PaddingRight']) P[k] = ud(P[k]);
+        if (n.ClassName === 'UIListLayout' || n.ClassName === 'UIPageLayout') P.Padding = ud(P.Padding);
+        if (n.ClassName === 'UIGridLayout') {
+          P.CellSize = ud2(P.CellSize);
+          P.CellPadding = ud2(P.CellPadding);
+        }
+        if (n.ClassName === 'UIShadow') {
+          P.Offset = ud2(P.Offset);
+          P.BlurRadius = ud(P.BlurRadius);
+          P.Spread = ud2(P.Spread);
+        }
+        if (n.ClassName === 'ImageLabel' || n.ClassName === 'ImageButton') {
+          if (P.TileSize) P.TileSize = ud2(P.TileSize);
+          if (P.SliceScale != null && P.ScaleType === 'Slice') P.SliceScale = round(P.SliceScale * f, 3);
+        }
+        if (n.ClassName === 'UISizeConstraint') {
+          P.MinSize = P.MinSize.map((v) => Math.round(v * f));
+          P.MaxSize = P.MaxSize.map((v) => (v >= 1e9 ? v : Math.round(v * f)));
+        }
+        if (n.ClassName === 'UITextSizeConstraint') {
+          P.MinTextSize = Math.max(1, Math.round(P.MinTextSize * f));
+          P.MaxTextSize = Math.min(100, Math.round(P.MaxTextSize * f));
+        }
+        if (n.ClassName === 'ScrollingFrame') {
+          P.CanvasSize = ud2(P.CanvasSize);
+          P.ScrollBarThickness = Math.round(P.ScrollBarThickness * f);
+        }
+        for (const c of n.children) visit(c, false);
+      };
+      nodes.forEach((n) => visit(n, true));
+    });
+  },
+
+  /** Tidy up: arranges the selected siblings in a neat grid keeping their order. */
+  tidyUp() {
+    const s = this.store;
+    const ids = this.topLevel(s.selection).filter((id) => isGuiObject(s.get(id)?.ClassName));
+    if (ids.length < 2) return;
+    const parent = this.sameParent(ids);
+    if (!parent) return;
+    const pb = this.boxOf(parent.id);
+    const items = ids.map((id) => ({ id, b: { ...this.boxOf(id) } }));
+    const x0 = Math.min(...items.map((i) => i.b.x)), y0 = Math.min(...items.map((i) => i.b.y));
+    const x1 = Math.max(...items.map((i) => i.b.x + i.b.w));
+    const cols = Math.max(1, Math.round((x1 - x0) / Math.max(...items.map((i) => i.b.w))));
+    items.sort((a, b) => (Math.abs(a.b.y - b.b.y) > Math.min(a.b.h, b.b.h) / 2 ? a.b.y - b.b.y : a.b.x - b.b.x));
+    const cw = Math.max(...items.map((i) => i.b.w)), ch = Math.max(...items.map((i) => i.b.h));
+    const gap = 16;
+    s.edit('Ordenar', () => items.forEach((it, i) => {
+      const c = i % cols, r = Math.floor(i / cols);
+      writeBox(s.get(it.id), pb, { ...it.b, x: x0 + c * (cw + gap), y: y0 + r * (ch + gap) }, 'keep', { size: false });
+    }));
+  },
+
+  /** Figma-style constraints -> AnchorPoint + Position/Size units, keeping the current look. */
+  setConstraint(axis, mode) {
+    const s = this.store;
+    const nodes = s.selectedNodes().filter((n) => isGuiObject(n.ClassName));
+    s.edit('Restricción', () => {
+      for (const n of nodes) {
+        const b = this.boxOf(n.id), pb = this.parentBoxOf(n.id);
+        if (!b || !pb) continue;
+        const area = pb.content;
+        const i = axis === 'x' ? 0 : 1;
+        const len = axis === 'x' ? area.w : area.h;
+        const start = (axis === 'x' ? b.x - area.x : b.y - area.y);
+        const size = axis === 'x' ? b.w : b.h;
+        const A = [...(n.props.AnchorPoint || [0, 0])];
+        const P = [...n.props.Position], S = [...n.props.Size];
+        const pi = i * 2, si = i * 2;
+        if (mode === 'start') {
+          A[i] = 0; P[pi] = 0; P[pi + 1] = Math.round(start);
+          S[si] = 0; S[si + 1] = Math.round(size);
+        } else if (mode === 'end') {
+          A[i] = 1; P[pi] = 1; P[pi + 1] = Math.round(start + size - len);
+          S[si] = 0; S[si + 1] = Math.round(size);
+        } else if (mode === 'center') {
+          A[i] = 0.5; P[pi] = 0.5; P[pi + 1] = Math.round(start + size / 2 - len / 2);
+          S[si] = 0; S[si + 1] = Math.round(size);
+        } else if (mode === 'stretch') {
+          A[i] = 0; P[pi] = 0; P[pi + 1] = Math.round(start);
+          S[si] = 1; S[si + 1] = Math.round(size - len);
+        } else if (mode === 'scale') {
+          A[i] = 0; P[pi] = len ? round(start / len, 4) : 0; P[pi + 1] = 0;
+          S[si] = len ? round(size / len, 4) : 0; S[si + 1] = 0;
+        }
+        n.props.AnchorPoint = A;
+        n.props.Position = P;
+        n.props.Size = S;
+      }
+    });
+  },
+
+  /** Current Figma-like constraint of a node on an axis (derived from its Roblox props). */
+  constraintOf(n, axis) {
+    const i = axis === 'x' ? 0 : 1;
+    const A = (n.props.AnchorPoint || [0, 0])[i];
+    const P = n.props.Position || [0, 0, 0, 0], S = n.props.Size || [0, 0, 0, 0];
+    const ps = P[i * 2], ss = S[i * 2];
+    if (ss >= 0.999 && ps === 0) return 'stretch';
+    if (ss > 0 && ps !== 0 || ss > 0 && P[i * 2 + 1] === 0 && S[i * 2 + 1] === 0) return 'scale';
+    if (ps === 0.5 && A === 0.5) return 'center';
+    if (ps === 1 && A === 1) return 'end';
+    if (ps === 0 && A === 0) return 'start';
+    return 'custom';
+  },
+});
 
 export const NAMES = {
   Frame: 'Frame', TextLabel: 'TextLabel', TextButton: 'TextButton', TextBox: 'TextBox', ImageLabel: 'ImageLabel', ImageButton: 'ImageButton',

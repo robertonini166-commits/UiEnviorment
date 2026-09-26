@@ -168,6 +168,9 @@ class App {
       { label: (this.store.view.showHidden ? '✓ ' : '') + 'Mostrar objetos invisibles (Visible=false)', action: () => this.store.setView({ showHidden: !this.store.view.showHidden }) },
       { label: (this.store.view.snap ? '✓ ' : '') + 'Ajuste inteligente (snap)', action: () => this.store.setView({ snap: !this.store.view.snap }) },
       { label: (this.store.view.showLayoutGuides ? '✓ ' : '') + 'Guías de layout / padding', action: () => this.store.setView({ showLayoutGuides: !this.store.view.showLayoutGuides }) },
+      { label: (this.store.view.showRulers ? '✓ ' : '') + 'Reglas y guías', shortcut: 'Mayús R', action: () => this.store.setView({ showRulers: !this.store.view.showRulers }) },
+      { label: (this.store.view.pixelGrid ? '✓ ' : '') + 'Cuadrícula de píxeles', action: () => this.store.setView({ pixelGrid: !this.store.view.pixelGrid }) },
+      { label: (this.store.view.showCoreUI ? '✓ ' : '') + 'Barra de Roblox y controles móviles', action: () => this.store.setView({ showCoreUI: !this.store.view.showCoreUI }) },
     ], b));
     z.append(b);
   }
@@ -285,6 +288,14 @@ class App {
         { label: 'Seleccionar todo', shortcut: 'Ctrl A', action: () => this.cmd.selectAll() },
         { label: 'Seleccionar padre', shortcut: 'Esc', action: () => this.cmd.selectParent() },
         { label: 'Seleccionar hijos', shortcut: 'Enter', action: () => this.cmd.selectChildren() },
+        { label: 'Seleccionar capas iguales', shortcut: 'Ctrl Mayús A', action: () => this.cmd.selectMatching() },
+        { sep: true },
+        { label: 'Copiar estilo', shortcut: 'Ctrl Alt C', action: () => this.cmd.copyStyle() },
+        { label: 'Pegar estilo', shortcut: 'Ctrl Alt V', action: () => this.cmd.pasteStyle() },
+        { label: 'Buscar y reemplazar…', shortcut: 'Ctrl F', action: () => this.findDialog() },
+        { label: 'Renombrar selección…', shortcut: 'Ctrl R', action: () => this.renameDialog() },
+        { label: 'Escalar selección…', shortcut: 'K', action: () => this.scaleDialog() },
+        { label: 'Ordenar en cuadrícula (tidy up)', shortcut: 'Mayús T', action: () => this.cmd.tidyUp() },
       ] },
       { label: 'Objeto', submenu: this.objectMenuItems() },
       { label: 'Insertar', submenu: this.insertItems() },
@@ -377,6 +388,11 @@ class App {
       if (mod && k === 'o') return run(() => this.openFile());
       if (mod && k === 'e') return run(() => openExportDialog(this));
       if (mod && e.altKey && k === 'k') return run(() => this.components.createFromSelection());
+      if (mod && e.altKey && k === 'c') return run(() => c.copyStyle());
+      if (mod && e.altKey && k === 'v') return run(() => c.pasteStyle());
+      if (mod && e.shiftKey && k === 'a') return run(() => c.selectMatching());
+      if (mod && k === 'f') return run(() => this.findDialog());
+      if (mod && k === 'r') return run(() => this.renameDialog());
       if (mod && k === 'g') return run(() => (e.shiftKey ? c.ungroup() : c.group(e.altKey ? 'Folder' : 'Frame')));
       if (mod && e.shiftKey && k === 'l') return run(() => c.toggleEditor('locked'));
       if (mod && e.shiftKey && k === 'h') return run(() => c.toggleEditor('hidden'));
@@ -408,11 +424,14 @@ class App {
         return run(() => c.nudge(...d));
       }
       if (e.shiftKey && k === 'a') return run(() => c.autoLayout());
+      if (e.shiftKey && k === 'r') return run(() => s.setView({ showRulers: !s.view.showRulers }));
       if (e.shiftKey && e.key === '!') return run(() => this.canvas.zoomToFit());
       if (e.shiftKey && (e.code === 'Digit1')) return run(() => this.canvas.zoomToFit());
       if (e.shiftKey && (e.code === 'Digit2')) return run(() => this.canvas.zoomToSelection());
       if (e.shiftKey && (e.code === 'Digit0')) return run(() => this.setZoom(1));
       if (e.key === 'F5') return run(() => this.prototype.play());
+      if (k === 'k' && !e.shiftKey) return run(() => this.scaleDialog());
+      if (e.ctrlKey === false && e.altKey === false && e.shiftKey && k === 't') return run(() => c.tidyUp());
       if (!e.shiftKey && TOOL_KEYS[k]) return run(() => s.setTool(TOOL_KEYS[k]));
     });
   }
@@ -641,6 +660,61 @@ class App {
       h('table', { class: 'props-table', style: { marginTop: '10px' } }, rows)), [{ label: 'Cerrar' }]);
   }
 
+  findDialog() {
+    const f = h('input', { class: 'txt', placeholder: 'Buscar…' });
+    const r = h('input', { class: 'txt', placeholder: 'Reemplazar por…' });
+    let inNames = false;
+    [f, r].forEach((x) => x.addEventListener('keydown', (e) => e.stopPropagation()));
+    const res = h('div', { class: 'hint' });
+    const list = h('div', { style: { maxHeight: '220px', overflow: 'auto', marginTop: '8px' } });
+    const refresh = () => {
+      list.innerHTML = '';
+      if (!f.value) return;
+      const hits = this.store.allNodes().filter((n) => (n.props?.Text || '').includes(f.value) || (inNames && n.Name.includes(f.value)));
+      res.textContent = `${hits.length} coincidencia(s)`;
+      for (const n of hits.slice(0, 100)) {
+        const row = h('div', { class: 'row', style: { paddingLeft: '6px' } }, h('span', { class: 'nm' }, `${n.Name} — ${(n.props.Text || '').slice(0, 60)}`));
+        row.addEventListener('click', () => {
+          this.store.select(n.id);
+          this.canvas.zoomToSelection();
+        });
+        list.append(row);
+      }
+    };
+    f.addEventListener('input', refresh);
+    dialog('Buscar y reemplazar', h('div', { style: { display: 'grid', gap: '8px' } }, f, r, h('div', {}, h('label', { class: 'check' }, h('input', { type: 'checkbox', onchange: (e) => { inNames = e.target.checked; refresh(); } }), 'Buscar también en nombres')), res, list), [
+      { label: 'Cerrar' },
+      { label: 'Reemplazar todo', primary: true, action: () => {
+        const n = this.cmd.findReplace(f.value, r.value, { inNames, inTexts: true });
+        toast(`${n} reemplazo(s)`);
+      } },
+    ]);
+    setTimeout(() => f.focus(), 0);
+  }
+
+  renameDialog() {
+    const sel = this.store.selectedNodes();
+    if (!sel.length) return toast('Selecciona capas para renombrar');
+    const inp = h('input', { class: 'txt', value: sel.length > 1 ? `${sel[0].Name.replace(/\d+$/, '')}$n` : sel[0].Name });
+    inp.addEventListener('keydown', (e) => e.stopPropagation());
+    dialog(`Renombrar ${sel.length} capa(s)`, h('div', { style: { display: 'grid', gap: '8px' } }, inp, h('div', { class: 'hint' }, '$n = número (1, 2, 3…), $& = nombre actual, $c = clase. Ej: "Card$n" → Card1, Card2…')), [
+      { label: 'Cancelar' },
+      { label: 'Renombrar', primary: true, action: () => this.cmd.batchRename(inp.value) },
+    ]);
+    setTimeout(() => inp.select(), 0);
+  }
+
+  scaleDialog() {
+    if (!this.store.selection.length) return toast('Selecciona algo para escalar');
+    const inp = h('input', { class: 'txt', value: '1.25' });
+    inp.addEventListener('keydown', (e) => e.stopPropagation());
+    dialog('Escalar (K)', h('div', { style: { display: 'grid', gap: '8px' } }, inp, h('div', { class: 'hint' }, 'Multiplica tamaños, texto, contornos, esquinas y espaciados de la selección y todo su contenido (como la herramienta Escala de Figma). Alternativa sin cambiar valores: añadir un UIScale.')), [
+      { label: 'Cancelar' },
+      { label: 'Escalar', primary: true, action: () => this.cmd.scaleSelection(parseFloat(inp.value.replace(',', '.'))) },
+    ]);
+    setTimeout(() => inp.select(), 0);
+  }
+
   shortcutsDialog() {
     const rows = [
       ['V / H', 'Mover / Mano'], ['F · R · O', 'Frame · Rectángulo · Círculo'], ['T · B · I · S', 'Texto · Botón · Imagen · Scroll'],
@@ -650,6 +724,8 @@ class App {
       ['Flechas (+Mayús)', 'Mover 1px (10px)'], ['Ctrl D / C / X / V', 'Duplicar / Copiar / Cortar / Pegar'],
       ['Ctrl G / Ctrl Mayús G', 'Agrupar / Desagrupar'], ['Mayús A', 'Auto layout (UIListLayout)'], ['Alt A/H/D/W/V/S', 'Alinear'],
       ['Ctrl ] / [', 'Adelante / atrás (Mayús: al frente/fondo)'], ['Ctrl Alt K', 'Crear componente'], ['Ctrl E', 'Exportar a Roblox'], ['F5', 'Probar interacciones'],
+      ['Ctrl Alt C / V', 'Copiar / pegar estilo'], ['Ctrl Mayús A', 'Seleccionar capas iguales'], ['Ctrl F', 'Buscar y reemplazar'], ['Ctrl R', 'Renombrar selección'],
+      ['K', 'Escalar selección con contenido'], ['Mayús T', 'Ordenar en cuadrícula'], ['Mayús R', 'Reglas y guías (arrastra desde la regla)'],
     ];
     dialog('Atajos de teclado', h('table', { class: 'props-table' }, rows.map(([k, v]) => h('tr', {}, h('td', {}, h('span', { class: 'kbd' }, k)), h('td', {}, v)))), [{ label: 'Cerrar' }]);
   }

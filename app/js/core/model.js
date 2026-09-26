@@ -16,7 +16,7 @@ export const DEVICES = {
   laptop: { label: 'Portátil 1366×768', width: 1366, height: 768 },
   studio: { label: 'Studio 1280×720', width: 1280, height: 720 },
   tablet: { label: 'Tablet 1024×768', width: 1024, height: 768 },
-  phone: { label: 'Móvil 844×390', width: 844, height: 390 },
+  phone: { label: 'Móvil 844×390 (con notch)', width: 844, height: 390, safe: { l: 47, r: 47, t: 0, b: 21 } },
   phoneSmall: { label: 'Móvil pequeño 667×375', width: 667, height: 375 },
   console: { label: 'Consola 1920×1080', width: 1920, height: 1080 },
 };
@@ -44,6 +44,7 @@ export function createScreen(name = 'Screen', device = 'studio', x = 0, y = 0) {
   const d = DEVICES[device] || DEVICES.studio;
   const s = createNode('ScreenGui', {}, [], { Name: name });
   s.design = { x, y, width: d.width, height: d.height, device, background: '#3A6EA5' };
+  if (d.safe) s.design.safe = { ...d.safe };
   return s;
 }
 

@@ -12,7 +12,7 @@ export class Store {
     this.selection = []; // node ids (ordered)
     this.activeScreenId = doc.screens[0]?.id || null;
     this.tool = 'select';
-    this.view = { zoom: 0.6, panX: 60, panY: 60, showHidden: true, showLayoutGuides: true, unitMode: 'keep', snap: true, pixelGrid: false };
+    this.view = { zoom: 0.6, panX: 60, panY: 60, showHidden: true, showLayoutGuides: true, unitMode: 'keep', snap: true, pixelGrid: true, showRulers: true, showCoreUI: true };
     this.hoverId = null;
     this.mode = 'design'; // 'design' | 'prototype'
     this.editingComponentId = null;

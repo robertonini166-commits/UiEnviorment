@@ -238,6 +238,28 @@ export class Inspector {
       udimRow('W', 'Size', 0, size.mixed), udimRow('H', 'Size', 2, size.mixed),
     );
     if (abs) body.append(h('div', { class: 'hint', style: { marginBottom: '6px' } }, `Tamaño real: ${round(abs.w, 1)} × ${round(abs.h, 1)} px · posición ${round(abs.ax, 1)}, ${round(abs.ay, 1)}`));
+    // Figma-like sizing (Fixed / Hug / Fill) and constraints
+    if (one) {
+      const sizing = (axis) => {
+        const i = axis === 'x' ? 0 : 1;
+        const as = one.props.AutomaticSize || 'None';
+        const hug = as === 'XY' || as === (axis === 'x' ? 'X' : 'Y');
+        const S = one.props.Size;
+        const fi = one.children.find((c) => c.ClassName === 'UIFlexItem');
+        const parentLayout = s.parentOf(one.id)?.children.find((c) => c.ClassName === 'UIListLayout');
+        const mainAxis = parentLayout ? (parentLayout.props.FillDirection === 'Horizontal' ? 'x' : 'y') : null;
+        const fill = (mainAxis === axis && fi && fi.props.FlexMode === 'Fill') || (S[i * 2] >= 0.999 && S[i * 2 + 1] === 0);
+        const cur = hug ? 'hug' : fill ? 'fill' : 'fixed';
+        return seg([['fixed', 'Fijo', 'Tamaño fijo (Offset)'], ['hug', 'Abrazar', 'AutomaticSize: se adapta al contenido'], ['fill', 'Llenar', 'Ocupa todo el espacio del padre (Scale 1 / UIFlexItem Fill)']], cur, (v) => this.setSizing(one, axis, v, mainAxis));
+      };
+      body.append(h('div', { class: 'grid2', style: { marginBottom: '6px' } }, h('div', {}, h('div', { class: 'lbl' }, 'Ancho'), sizing('x')), h('div', {}, h('div', { class: 'lbl' }, 'Alto'), sizing('y'))));
+      if (!inLayout) {
+        const cons = (axis) => seg((axis === 'x'
+          ? [['start', 'Izq'], ['center', 'Centro'], ['end', 'Der'], ['stretch', '↔'], ['scale', '%']]
+          : [['start', 'Arr'], ['center', 'Centro'], ['end', 'Abajo'], ['stretch', '↕'], ['scale', '%']]).map(([k, l]) => [k, l, { start: 'Pegado al inicio (AnchorPoint 0)', center: 'Centrado (AnchorPoint 0.5, Scale 0.5)', end: 'Pegado al final (AnchorPoint 1, Scale 1)', stretch: 'Estirar entre bordes (Size Scale 1 + Offset)', scale: 'Todo en Scale (proporcional)' }[k]]), this.cmd.constraintOf(one, axis), (v) => this.cmd.setConstraint(axis, v));
+        body.append(h('div', { class: 'lbl' }, 'Restricciones (cómo se adapta a otras pantallas)'), h('div', { style: { display: 'grid', gap: '4px', marginBottom: '8px' } }, cons('x'), cons('y')));
+      }
+    }
     // anchor + rotation
     const ag = h('div', { class: 'anchor-grid', title: 'AnchorPoint' });
     const av = anchor.value || [0, 0];
@@ -272,6 +294,50 @@ export class Inspector {
       h('div', {}, h('div', { class: 'lbl' }, 'AutomaticSize'), select(Object.keys(ENUMS.AutomaticSize), as.value, (v) => this.set('AutomaticSize', v), { mixed: as.mixed })),
       h('div', {}, h('div', { class: 'lbl' }, 'SizeConstraint'), select(Object.keys(ENUMS.SizeConstraint), sc.value, (v) => this.set('SizeConstraint', v), { mixed: sc.mixed }))));
     return this.section('geometry', 'Posición y tamaño', body);
+  }
+
+  /** Fixed / Hug / Fill sizing on one axis (maps to Size, AutomaticSize and UIFlexItem). */
+  setSizing(n, axis, mode, mainAxis) {
+    const s = this.store;
+    const i = axis === 'x' ? 0 : 1;
+    const b = this.cmd.boxOf(n.id);
+    s.edit('Tamaño', () => {
+      const S = [...n.props.Size];
+      let as = n.props.AutomaticSize || 'None';
+      const has = (a) => as === 'XY' || as === a;
+      const setAuto = (a, on) => {
+        const x = a === 'X' ? on : has('X') && a !== 'X', y = a === 'Y' ? on : has('Y') && a !== 'Y';
+        const xx = a === 'X' ? on : has('X'), yy = a === 'Y' ? on : has('Y');
+        void x; void y;
+        as = xx && yy ? 'XY' : xx ? 'X' : yy ? 'Y' : 'None';
+      };
+      const A = axis === 'x' ? 'X' : 'Y';
+      let fi = n.children.find((c) => c.ClassName === 'UIFlexItem');
+      if (mode === 'hug') {
+        setAuto(A, true);
+        S[i * 2] = 0;
+        S[i * 2 + 1] = 0;
+        if (fi && mainAxis === axis) n.children.splice(n.children.indexOf(fi), 1);
+      } else {
+        setAuto(A, false);
+        if (mode === 'fixed') {
+          S[i * 2] = 0;
+          S[i * 2 + 1] = Math.round(b ? (axis === 'x' ? b.w : b.h) : S[i * 2 + 1]);
+          if (fi && mainAxis === axis) n.children.splice(n.children.indexOf(fi), 1);
+        } else if (mainAxis === axis) {
+          if (!fi) {
+            fi = this.app.model.createNode('UIFlexItem', { FlexMode: 'Fill' });
+            fi.Name = 'UIFlexItem';
+            n.children.unshift(fi);
+          } else fi.props.FlexMode = 'Fill';
+        } else {
+          S[i * 2] = 1;
+          S[i * 2 + 1] = 0;
+        }
+      }
+      n.props.Size = S;
+      n.props.AutomaticSize = as;
+    });
   }
 
   /** Changes AnchorPoint while keeping the object in place (adjusts Position). */
