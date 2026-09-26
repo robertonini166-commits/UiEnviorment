@@ -1,0 +1,9 @@
+/* Rendering of Roblox GUI trees (shared by editor, preview and CLI renderer). */
+.rbx-screen { position: relative; overflow: hidden; transform-origin: 0 0; }
+.rbx-node { position: absolute; transform-origin: 0 0; }
+.rbx-own { position: absolute; inset: 0; pointer-events: none; }
+.rbx-own > svg { position: absolute; left: 0; top: 0; overflow: visible; }
+.rbx-kids { position: absolute; inset: 0; }
+.rbx-canvas { position: absolute; left: 0; top: 0; }
+.rbx-invisible { opacity: 0.35; outline: 1px dashed rgba(255,255,255,.4); }
+.rbx-text text { font-kerning: normal; }

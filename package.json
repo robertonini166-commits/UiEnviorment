@@ -1,0 +1,15 @@
+{
+  "name": "rbxui-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Figma-like editor for Roblox UI with lossless export to Roblox Studio.",
+  "type": "module",
+  "scripts": {
+    "serve": "node cli/serve.mjs",
+    "test": "node --test tests/unit/",
+    "e2e": "node tests/e2e.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1"
+  }
+}

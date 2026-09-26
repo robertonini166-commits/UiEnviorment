@@ -1,0 +1,18 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="../app/css/rbx.css">
+<style>body{margin:0;background:#222} #host>.rbx-screen{background:#3A6EA5}</style></head>
+<body><div id="host"></div>
+<script type="module">
+import { normalizeDocument } from '../app/js/core/model.js';
+import { ScreenRenderer } from '../app/js/core/renderer.js';
+const q = new URLSearchParams(location.search);
+const src = await (await fetch(q.get('doc'))).json();
+const { doc, warnings } = normalizeDocument(src);
+const screen = doc.screens[+(q.get('screen') || 0)];
+const host = document.getElementById('host');
+host.firstChild?.remove();
+const r = new ScreenRenderer(host, { doc, mode: 'preview', onFontsLoaded: () => { window.__ready = true; } });
+r.render(screen);
+window.__warnings = warnings;
+setTimeout(() => { window.__ready = true; }, 4000);
+</script></body></html>
