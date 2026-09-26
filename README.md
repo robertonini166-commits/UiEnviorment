@@ -40,7 +40,7 @@ vez en Settings › Pages › Source = "GitHub Actions".
 
 ## Para Claude y otros agentes
 
-**Guía paso a paso para diseñar con Claude (Claude Code, Claude Desktop o el chat): [GUIA_CLAUDE.md](GUIA_CLAUDE.md).**
+**Step-by-step guide for designing with Claude (Claude Code, Claude Desktop or the chat), in English: [CLAUDE_GUIDE.md](CLAUDE_GUIDE.md).**
 
 El formato del proyecto es un JSON legible con nombres de Roblox ([docs/FORMAT.md](docs/FORMAT.md)). La CLI permite
 diseñar sin interfaz:
